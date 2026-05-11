@@ -33,3 +33,47 @@
   3. **State Management**: List of hooks and shared states.
   4. **Physics Configuration**: Detailed Spring values for UI.
   5. **Web3 Security**: MEV-protection status and RPC routing.
+
+  ## Documentation Protocol
+- All technical specs must reside in `./docs/`.
+- If a new function is added, Jules must create a corresponding `.md` in `/docs` using the Mermaid.js architecture template.
+- Jules is authorized to open a follow-up commit to the PR branch to add these files.
+
+  ### Mermaid.js Template for System Architecture
+When documenting a new MarrowStack module, include a diagram using this syntax:
+
+```mermaid
+graph TD
+    subgraph Client_Interface [Tactile UI Layer]
+        A[User Interaction] -->|Spring Physics| B(Marrow Atom)
+        B -->|HSL Tokens| C{Refined Logic}
+    end
+
+    subgraph System_Engine [Logic Orchestration]
+        C -->|useMarrowSystem| D[State Controller]
+        D -->|Bun Runtime| E[Internal Registry]
+    end
+
+    subgraph Web3_Infrastructure [On-Chain Layer]
+        E -->|marrow-solana| F[SVM Interaction]
+        F -->|MEV-Shield| G((Solana Mainnet))
+    end
+
+    style G fill:#000,stroke:#635BFF,stroke-width:4px
+    style Client_Interface fill:#111,stroke:#333
+
+    subgraph UI_Layer [Tactile Interface]
+        A[User Input] -->|Spring Physics| B(Marrow Component)
+    end
+
+    subgraph Logic_Layer [MarrowStack Core]
+        B -->|useMarrowSystem| C{Logic Block}
+        C -->|State| D[Internal Registry]
+    end
+
+    subgraph Infrastructure [Web3/Backend]
+        D -->|Dodo API| E[Merchant of Record]
+        D -->|marrow-solana| F[Solana Mainnet]
+    end
+
+    style F fill:#000,stroke:#635BFF,stroke-width:2px
