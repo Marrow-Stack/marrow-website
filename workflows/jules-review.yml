@@ -1,0 +1,22 @@
+name: Jules PR Review
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: sanjay3290/jules-pr-reviewer@v1 # Example marketplace action
+        with:
+          jules_api_key: ${{ secrets.JULES_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Tell Jules specifically what to look for
+          extra_instructions: |
+            Audit for:
+            1. Use of HSL metallic tokens (no hex colors).
+            2. Proper 'useSpring' physics configuration.
+            3. Web3 security (MEV resistance and mempool safety).
