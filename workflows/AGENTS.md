@@ -24,3 +24,12 @@
 ## 🚫 Critical Boundaries
 - Do not modify the core `Layout.tsx` without explicit confirmation.
 - Do not add new UI libraries (Shadcn, Radix are allowed; others are not).
+
+## Documentation Requirements
+- Path: All documentation must reside in `./docs/`.
+- Format: Use the "Marrow Technical Specification" format:
+  1. **Overview**: High-level system purpose.
+  2. **Architecture**: Diagrams or logic flow (in Mermaid.js if applicable).
+  3. **State Management**: List of hooks and shared states.
+  4. **Physics Configuration**: Detailed Spring values for UI.
+  5. **Web3 Security**: MEV-protection status and RPC routing.
