@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /auth/
+
+Sitemap: https://marrowstack.dev/sitemap.xml

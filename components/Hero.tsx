@@ -20,7 +20,7 @@ export const HeroSection = () => {
     }, []);
 
     return (
-        <section className="relative min-h-screen w-full overflow-hidden bg-background transition-colors duration-500">
+        <section className="relative min-h-screen w-full overflow-hidden transition-colors duration-500">
             <div className="relative z-10 container mx-auto px-4 min-h-screen flex items-center justify-center">
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
@@ -109,9 +109,9 @@ export const HeroSection = () => {
                         transition={{ duration: 0.8, delay: 0.7, ease: [0.23, 1, 0.32, 1] }}
                         className="flex justify-center mt-2"
                     >
-                        <Link href="/">
+                        <Link href="/blocks">
                             <AnimatedButton className="text-sm px-8 py-4 cursor-pointer">
-                                Browse Components
+                                Browse Blocks
                             </AnimatedButton>
                         </Link>
                     </motion.div>

@@ -14,8 +14,8 @@ type DockItem = {
 };
 
 const LEFT_ITEMS: DockItem[] = [
-  { name: "Blocks", icon: Boxes, href: "/" },
-  { name: "Docs", icon: BookOpen, href: "/" },
+  { name: "Blocks", icon: Boxes, href: "/blocks" },
+  { name: "Docs", icon: BookOpen, href: "/docs" },
 ];
 
 export const RefractiveDock = () => {
