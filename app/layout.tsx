@@ -27,13 +27,44 @@ export const metadata: Metadata = {
     url: "https://marrowstack.dev",
     siteName: "MarrowStack",
     type: "website",
+    images: [{ url: "https://marrowstack.dev/api/og?title=MarrowStack&description=Production+TypeScript+blocks+for+Next.js", width: 1200, height: 630 }],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "MarrowStack — Production TypeScript Blocks for Next.js",
     description:
       "Production-ready TypeScript blocks for Next.js: Auth, Admin, Team Workspace, Solana Auth (SIWS), and USDC Payments. Copy a file, run a migration, ship.",
+    images: ["https://marrowstack.dev/api/og?title=MarrowStack&description=Production+TypeScript+blocks+for+Next.js"],
   },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://marrowstack.dev/#org",
+      name: "MarrowStack",
+      url: "https://marrowstack.dev",
+      logo: "https://marrowstack.dev/logo.png",
+      sameAs: ["https://github.com/Marrow-Stack"],
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://marrowstack.dev/#website",
+      url: "https://marrowstack.dev",
+      name: "MarrowStack",
+      publisher: { "@id": "https://marrowstack.dev/#org" },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: "https://marrowstack.dev/blocks?q={search_term_string}",
+        },
+        "query-input": "required name=search_term_string",
+      },
+    },
+  ],
 };
 
 export default function RootLayout({
@@ -43,6 +74,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"

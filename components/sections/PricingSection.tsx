@@ -4,43 +4,52 @@ import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Check, Zap } from "lucide-react";
+import { SPRING, TACTILE_PRESS_WHILETAP } from "@/components/marrow/motion";
 
-const TIERS = [
+const BUNDLES = [
   {
-    name: "Per Block",
-    price: "From $39",
-    description: "Pick exactly what you need. One-time payment, lifetime access.",
-    features: [
-      "Full TypeScript source",
-      "Lifetime updates",
-      "Commercial license",
-      "Email support",
-    ],
-    cta: "Browse blocks",
+    name: "Growth Stack",
+    price: "$79",
+    description: "The essentials for a production SaaS: auth, billing, email, and a user profile.",
+    blocks: ["Auth System", "Billing & Subscriptions", "Email System", "User Profile"],
+    cta: "Get Growth Stack",
     href: "/blocks",
     highlight: false,
+    accent: null,
   },
   {
-    name: "All Access",
+    name: "Full SaaS MVP",
     price: "$149",
-    description: "Every block, current and future. The only plan serious teams need.",
-    features: [
-      "All 5 blocks (+ future releases)",
-      "Lifetime updates included",
-      "Priority email support",
-      "Early access to new blocks",
-      "Commercial license",
+    description: "Every web2 block you need to launch a complete SaaS product.",
+    blocks: [
+      "Auth System", "Admin Dashboard", "Team Workspace",
+      "Billing & Subscriptions", "Email System", "User Profile",
+      "Notifications", "Rate Limiting", "Error Handling",
     ],
-    cta: "Get All Access",
+    cta: "Get Full SaaS MVP",
     href: "/blocks",
     highlight: true,
+    accent: "hsl(263 70% 58%)",
+  },
+  {
+    name: "Solana Launch Pack",
+    price: "$129",
+    description: "The only bundle that covers both web2 auth and Solana-native payments. No competitor sells this.",
+    blocks: [
+      "Solana Auth (SIWS)", "Solana Payments (USDC)",
+      "Auth System", "Billing & Subscriptions", "Email System",
+    ],
+    cta: "Get Solana Pack",
+    href: "/blocks",
+    highlight: false,
+    accent: "hsl(160 60% 45%)",
   },
 ];
 
 export function PricingSection() {
   return (
     <section className="relative py-24 px-4">
-      <div className="container mx-auto max-w-3xl">
+      <div className="container mx-auto max-w-5xl">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -52,89 +61,89 @@ export function PricingSection() {
             className="text-xs font-bold uppercase tracking-[0.2em] mb-4"
             style={{ color: "hsl(var(--accent-mineral))" }}
           >
-            Pricing
+            Bundles
           </p>
           <h2 className="text-3xl md:text-4xl font-black text-reveal-light leading-tight">
-            Pay once. Own it forever.
+            Buy once. Own it forever.
           </h2>
           <p className="mt-4 text-sm" style={{ color: "hsl(var(--accent-mineral))" }}>
-            No subscriptions. No seat limits. No lock-in.
+            Or buy individual blocks from $9. No subscriptions. No seat limits. No lock-in.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {TIERS.map((tier, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {BUNDLES.map((bundle, i) => (
             <motion.div
-              key={tier.name}
+              key={bundle.name}
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: i * 0.1, ease: [0.23, 1, 0.32, 1] }}
-              className="relative rounded-2xl border p-7 flex flex-col"
+              className="relative rounded-2xl border p-6 flex flex-col"
               style={{
-                background: tier.highlight
-                  ? "linear-gradient(145deg, rgba(109,40,217,0.15) 0%, rgba(13,17,23,0.9) 100%)"
+                background: bundle.highlight
+                  ? `linear-gradient(145deg, hsl(263 70% 58% / 0.12) 0%, hsl(var(--background) / 0.95) 100%)`
                   : "var(--metal-gradient)",
-                borderColor: tier.highlight
-                  ? "rgba(109,40,217,0.4)"
+                borderColor: bundle.highlight
+                  ? "hsl(263 70% 58% / 0.4)"
+                  : bundle.accent
+                  ? `${bundle.accent} / 0.3`
                   : "hsl(var(--metal-border))",
-                boxShadow: tier.highlight ? "0 0 40px rgba(109,40,217,0.12)" : "none",
               }}
             >
-              {tier.highlight && (
+              {bundle.highlight && (
                 <div
                   className="absolute -top-3 left-1/2 -translate-x-1/2 flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
-                  style={{ background: "rgba(109,40,217,1)", color: "#fff" }}
+                  style={{ background: "hsl(263 70% 58%)", color: "hsl(0 0% 100%)" }}
                 >
                   <Zap size={9} />
-                  Best Value
+                  Most Complete
                 </div>
               )}
 
-              <div className="mb-6">
+              <div className="mb-5">
                 <p
                   className="text-xs font-bold uppercase tracking-widest mb-2"
-                  style={{ color: tier.highlight ? "#a78bfa" : "hsl(var(--accent-mineral))" }}
+                  style={{ color: bundle.accent ?? "hsl(var(--accent-mineral))" }}
                 >
-                  {tier.name}
+                  {bundle.name}
                 </p>
                 <p
                   className="text-3xl font-black mb-2"
                   style={{ color: "hsl(var(--metal-foreground))" }}
                 >
-                  {tier.price}
+                  {bundle.price}
                 </p>
                 <p className="text-[13px]" style={{ color: "hsl(var(--accent-mineral))" }}>
-                  {tier.description}
+                  {bundle.description}
                 </p>
               </div>
 
-              <ul className="space-y-3 flex-1 mb-7">
-                {tier.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2.5">
+              <ul className="space-y-2.5 flex-1 mb-6">
+                {bundle.blocks.map((b) => (
+                  <li key={b} className="flex items-start gap-2">
                     <Check
-                      size={13}
+                      size={12}
                       className="mt-0.5 shrink-0"
-                      style={{ color: tier.highlight ? "#a78bfa" : "hsl(var(--metal-shine))" }}
+                      style={{ color: bundle.accent ?? "hsl(var(--metal-shine))" }}
                     />
                     <span className="text-[13px]" style={{ color: "hsl(var(--metal-foreground))" }}>
-                      {f}
+                      {b}
                     </span>
                   </li>
                 ))}
               </ul>
 
-              <Link href={tier.href}>
+              <Link href={bundle.href}>
                 <motion.button
-                  whileTap={{ y: 3 }}
-                  transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                  className="w-full py-2.5 rounded-xl text-sm font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-metal-shine focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  whileTap={TACTILE_PRESS_WHILETAP}
+                  transition={SPRING}
+                  className="w-full py-2.5 rounded-xl text-sm font-bold transition-all focus-visible:outline-none focus-visible:ring-2"
                   style={
-                    tier.highlight
+                    bundle.highlight
                       ? {
-                          background: "linear-gradient(135deg, #7c3aed, #6d28d9)",
-                          color: "#fff",
-                          boxShadow: "0 4px 20px rgba(124,58,237,0.35)",
+                          background: "hsl(263 70% 58%)",
+                          color: "hsl(0 0% 100%)",
                         }
                       : {
                           background: "var(--metal-gradient)",
@@ -143,7 +152,7 @@ export function PricingSection() {
                         }
                   }
                 >
-                  {tier.cta}
+                  {bundle.cta}
                 </motion.button>
               </Link>
             </motion.div>
@@ -158,7 +167,7 @@ export function PricingSection() {
           className="text-center text-xs mt-8"
           style={{ color: "hsl(var(--metal-shine))" }}
         >
-          All purchases come with a 7-day refund policy. Secured by Dodo Payments.
+          14-day refund policy · Secured by Dodo Payments (merchant of record)
         </motion.p>
       </div>
     </section>

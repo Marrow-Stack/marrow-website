@@ -8,7 +8,7 @@ import { BlockCard } from "@/components/blocks/BlockCard";
 import { RefractiveDock } from "@/components/navbar";
 import { Footer } from "@/components/Footer";
 
-const ALL_CATEGORIES = ["all", "auth", "admin", "workspace", "solana"] as const;
+const ALL_CATEGORIES = ["all", "core", "monetization", "utility", "security", "ui", "solana"] as const;
 type FilterCategory = "all" | BlockCategory;
 
 export default function BlocksPage() {
@@ -129,21 +129,17 @@ export default function BlocksPage() {
           </div>
         )}
 
-        {/* More coming soon */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="mt-12 text-center py-12 rounded-2xl border border-dashed"
-          style={{ borderColor: "hsl(var(--metal-border))" }}
-        >
-          <p className="text-sm font-medium mb-1" style={{ color: "hsl(var(--metal-foreground))" }}>
-            More blocks coming soon
-          </p>
-          <p className="text-xs" style={{ color: "hsl(var(--accent-mineral))" }}>
-            Payments, notifications, file uploads, and more are in the pipeline.
-          </p>
-        </motion.div>
+        {filtered.length > 0 && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="mt-8 text-center text-xs"
+            style={{ color: "hsl(var(--metal-shine))" }}
+          >
+            {filtered.length} block{filtered.length !== 1 ? "s" : ""} · one-time payment · MIT-friendly
+          </motion.p>
+        )}
       </main>
 
       <Footer />

@@ -48,19 +48,24 @@ export async function generateMetadata({
   const { slug } = await params;
   const block = getBlock(slug);
   if (!block) return {};
+  const title = `${block.name} — MarrowStack`;
+  const description = `${block.tagline} ${block.description.slice(0, 100)}…`;
+  const ogUrl = `https://marrowstack.dev/api/og?title=${encodeURIComponent(block.name)}&description=${encodeURIComponent(block.tagline)}&price=${block.price}&category=${encodeURIComponent(block.category)}`;
   return {
-    title: `${block.name} — MarrowStack`,
-    description: block.description,
+    title,
+    description,
     openGraph: {
-      title: `${block.name} — MarrowStack`,
-      description: block.description,
+      title,
+      description,
       url: `https://marrowstack.dev/blocks/${slug}`,
       type: "website",
+      images: [{ url: ogUrl, width: 1200, height: 630 }],
     },
     twitter: {
-      card: "summary",
-      title: `${block.name} — MarrowStack`,
-      description: block.description,
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogUrl],
     },
   };
 }
@@ -122,8 +127,34 @@ export default async function BlockDetailPage({
   const PreviewComponent = getPreviewComponent(slug);
   const categoryStyle = CATEGORY_COLORS[block.category];
 
+  // JSON-LD: Product + Offer
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: block.name,
+    description: block.description,
+    applicationCategory: "DeveloperApplication",
+    operatingSystem: "Any",
+    offers: {
+      "@type": "Offer",
+      price: block.price.toString(),
+      priceCurrency: "USD",
+      availability: "https://schema.org/InStock",
+      url: `https://marrowstack.dev/blocks/${block.slug}`,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "MarrowStack",
+      url: "https://marrowstack.dev",
+    },
+  };
+
   return (
     <div className="min-h-screen font-display">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <RefractiveDock />
 
       <main className="container mx-auto max-w-6xl px-4 pt-36 pb-24">
@@ -183,16 +214,11 @@ export default async function BlockDetailPage({
                 <PurchaseButton blockSlug={block.slug} blockPrice={block.price} hasPurchased={hasPurchased} repoUrl={repoUrl} />
               </div>
 
-              <button
-                className="w-full py-2.5 rounded-xl text-xs font-medium border transition-all active:translate-y-[3px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-metal-shine focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                style={{
-                  borderColor: "hsl(var(--metal-border))",
-                  color: "hsl(var(--metal-foreground))",
-                  background: "transparent",
-                }}
-              >
-                View source preview
-              </button>
+              {!hasPurchased && (
+                <p className="text-center text-[11px] mt-2" style={{ color: "hsl(var(--metal-shine))" }}>
+                  14-day refund, no questions asked.
+                </p>
+              )}
             </div>
 
             {/* What's included */}
@@ -251,7 +277,10 @@ export default async function BlockDetailPage({
 }
 
 function OtherBlocks({ current }: { current: MarrowBlock }) {
-  const others = BLOCKS.filter((b) => b.id !== current.id);
+  // Prefer same-category blocks, then fill with others; cap at 4
+  const sameCategory = BLOCKS.filter((b) => b.id !== current.id && b.category === current.category);
+  const different    = BLOCKS.filter((b) => b.id !== current.id && b.category !== current.category);
+  const others = [...sameCategory, ...different].slice(0, 4);
   if (others.length === 0) return null;
 
   return (
@@ -260,7 +289,7 @@ function OtherBlocks({ current }: { current: MarrowBlock }) {
         className="text-xs font-bold uppercase tracking-widest mb-6"
         style={{ color: "hsl(var(--metal-shine))" }}
       >
-        More blocks
+        Related blocks
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {others.map((b) => {

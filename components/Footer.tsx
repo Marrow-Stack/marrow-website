@@ -4,20 +4,21 @@ import Link from "next/link";
 const LINKS = {
   Product: [
     { label: "All Blocks",        href: "/blocks" },
-    { label: "Auth System",       href: "/blocks/auth" },
-    { label: "Admin Dashboard",   href: "/blocks/admin" },
-    { label: "Team Workspace",    href: "/blocks/teamspace" },
     { label: "Solana Auth",       href: "/blocks/solana-auth" },
     { label: "Solana Payments",   href: "/blocks/solana-payments" },
+    { label: "Auth System",       href: "/blocks/auth" },
+    { label: "Admin Dashboard",   href: "/blocks/admin" },
+    { label: "Affiliate",         href: "/affiliate" },
   ],
   Resources: [
     { label: "Documentation",     href: "/docs" },
-    { label: "Getting Started",   href: "/docs/getting-started" },
+    { label: "After You Buy",     href: "/docs/after-you-buy" },
     { label: "Changelog",         href: "/changelog" },
     { label: "Security Model",    href: "/docs/security" },
     { label: "FAQ",               href: "/docs/faq" },
   ],
-  Legal: [
+  Company: [
+    { label: "About",             href: "/about" },
     { label: "Privacy Policy",    href: "/privacy" },
     { label: "Terms of Service",  href: "/terms" },
     { label: "License",           href: "/docs/faq#licensing" },
@@ -37,9 +38,16 @@ export function Footer() {
             <p className="font-black text-base mb-2" style={{ color: "hsl(var(--metal-foreground))" }}>
               MarrowStack
             </p>
-            <p className="text-[13px] leading-relaxed" style={{ color: "hsl(var(--accent-mineral))" }}>
-              Production-ready TypeScript blocks for Next.js. Copy, wire, ship.
+            <p className="text-[13px] leading-relaxed mb-4" style={{ color: "hsl(var(--accent-mineral))" }}>
+              Production-ready TypeScript blocks for Next.js. Buy once, own forever.
             </p>
+            <a
+              href="mailto:samarth@marrowstack.dev"
+              className="text-[12px] transition-opacity hover:opacity-80"
+              style={{ color: "hsl(var(--metal-shine))" }}
+            >
+              samarth@marrowstack.dev
+            </a>
           </div>
 
           {Object.entries(LINKS).map(([group, links]) => (
@@ -72,7 +80,7 @@ export function Footer() {
           style={{ borderColor: "hsl(var(--metal-border))" }}
         >
           <p className="text-xs" style={{ color: "hsl(var(--metal-shine))" }}>
-            © {new Date().getFullYear()} MarrowStack. All rights reserved.
+            © {new Date().getFullYear()} MarrowStack · Built by Samarth Shukla
           </p>
           <p className="text-xs" style={{ color: "hsl(var(--metal-shine))" }}>
             Payments by{" "}

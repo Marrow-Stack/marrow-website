@@ -2,58 +2,45 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  /* Light Mode: Polished Silver & Slate */
-  --background: #f8fafc;
-  /* slate-50 */
-  --foreground: #0f172a;
-  /* slate-900 */
+  /* Light Mode: Polished Silver & Slate — all values in HSL */
+  --background: 210 40% 98%;
+  --foreground: 222 47% 11%;
 
-  /* Metallic Variable System (HSL for better blending) */
+  /* Metallic Variable System */
   --metal-foreground: 215 20% 12%;
-  /* Deep slate-charcoal  */
   --metal-lustre: 215 25% 27%;
-  /* slate-800 */
   --metal-border: 214 32% 91%;
-  /* slate-200 */
   --metal-shine: 215 16% 45%;
-  /* The shine */
 
   /* The "Marrow" Accent: Raw Iron/Graphite */
   --accent-mineral: 220 9% 46%;
-  /* grey-500 */
   --metal-gradient: linear-gradient(145deg,
-      rgba(248, 250, 252, 0.9) 0%,
-      rgba(226, 232, 240, 0.35) 100%);
+      hsl(210 40% 98% / 0.9) 0%,
+      hsl(214 32% 91% / 0.35) 100%);
 }
 
 .dark {
-  /* Dark Mode: Deepslate & Titanium */
-  --background: #09090b;
-  /* zinc-950 - slightly warmer than pure black */
-  --foreground: #fafafa;
-  /* zinc-50 */
+  /* Dark Mode: Deepslate & Titanium — all values in HSL */
+  --background: 240 10% 4%;
+  --foreground: 0 0% 98%;
 
   --metal-foreground: 215 15% 92%;
- /* Off-white "Titanium" for Dark Mode */
   --metal-lustre: 240 5% 84%;
-  /* zinc-200 (The 'Shine') */
   --metal-border: 240 6% 15%;
-  /* zinc-900 */
   --metal-shine: 215 10% 65%;
 
   /* The "Marrow" Accent: Crystalline Steel */
   --accent-mineral: 215 20% 65%;
-  /* slate-400 */
 
   /* Custom Metallic Gradient for dark mode surfaces */
   --metal-gradient: linear-gradient(145deg,
-      rgba(39, 39, 42, 0.5) 0%,
-      rgba(9, 9, 11, 0) 100%);
+      hsl(240 4% 16% / 0.5) 0%,
+      hsl(240 10% 4% / 0) 100%);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
   --color-metal-border: var(--metal-border);
   --color-metal-shine: var(--metal-shine);
   --font-sans: var(--font-geist-sans);
@@ -61,8 +48,8 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
   /* Apply a very subtle grain/texture look if desired */
   background-attachment: fixed;
 }
@@ -80,9 +67,9 @@ body {
     width: 30%;
     height: 25%;
     background: radial-gradient(
-      ellipse at center, 
-      rgba(255, 255, 255, 0.35) 0%, 
-      rgba(255, 255, 255, 0) 80%
+      ellipse at center,
+      hsl(0 0% 100% / 0.35) 0%,
+      hsl(0 0% 100% / 0) 80%
     );
     border-radius: 50%;
     filter: blur(3px);
@@ -102,8 +89,8 @@ body {
     /* LIGHT MODE: From deep slate to a faded mid-gray */
     background-image: linear-gradient(
       to bottom,
-      #000000 20%, 
-      rgba(18, 23, 33, 0.6) 100%
+      hsl(0 0% 0%) 20%,
+      hsl(222 29% 10% / 0.6) 100%
     );
   }
 
@@ -111,8 +98,8 @@ body {
     /* DARK MODE: From pure white/zinc to a faded titanium gray */
     background-image: linear-gradient(
       to bottom,
-      #ffffff 30%,
-      rgba(49, 52, 61, 0.4) 100%
+      hsl(0 0% 100%) 30%,
+      hsl(226 11% 22% / 0.4) 100%
     );
   }
 
