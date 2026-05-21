@@ -87,16 +87,16 @@ type ChangeEntry = {
 };
 
 const TYPE_STYLES: Record<ChangeType, { label: string; bg: string; color: string }> = {
-  new:         { label: "New",         bg: "rgba(35,134,54,0.12)",  color: "#3fb950" },
-  improvement: { label: "Improved",    bg: "rgba(121,192,255,0.1)", color: "#79c0ff" },
-  fix:         { label: "Fix",         bg: "rgba(255,166,87,0.1)",  color: "#ffa657" },
-  security:    { label: "Security",    bg: "rgba(248,81,73,0.1)",   color: "#f85149" },
+  new:         { label: "New",      bg: "hsl(var(--status-success) / 0.12)", color: "hsl(var(--status-success))" },
+  improvement: { label: "Improved", bg: "hsl(var(--status-info)    / 0.10)", color: "hsl(var(--status-info))" },
+  fix:         { label: "Fix",      bg: "hsl(var(--status-warning) / 0.10)", color: "hsl(var(--status-warning))" },
+  security:    { label: "Security", bg: "hsl(var(--status-error)   / 0.10)", color: "hsl(var(--status-error))" },
 };
 
 const TAG_STYLES: Record<string, { bg: string; color: string }> = {
-  launch:  { bg: "rgba(35,134,54,0.12)",  color: "#3fb950" },
-  update:  { bg: "rgba(121,192,255,0.1)", color: "#79c0ff" },
-  patch:   { bg: "rgba(255,166,87,0.1)",  color: "#ffa657" },
+  launch:  { bg: "hsl(var(--status-success) / 0.12)", color: "hsl(var(--status-success))" },
+  update:  { bg: "hsl(var(--status-info)    / 0.10)", color: "hsl(var(--status-info))" },
+  patch:   { bg: "hsl(var(--status-warning) / 0.10)", color: "hsl(var(--status-warning))" },
 };
 
 export default function ChangelogPage() {

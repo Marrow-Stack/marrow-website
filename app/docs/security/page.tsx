@@ -53,7 +53,7 @@ export default function SecurityDocsPage() {
       </Section>
 
       <Section title="Verify before delivering value">
-        <div className="p-4 rounded-xl text-sm" style={{ background: "rgba(248,81,73,0.08)", border: "1px solid rgba(248,81,73,0.2)", color: "#f85149" }}>
+        <div className="p-4 rounded-xl text-sm" style={{ background: "hsl(var(--status-error) / 0.08)", border: "1px solid hsl(var(--status-error) / 0.20)", color: "hsl(var(--status-error))" }}>
           <p className="font-bold mb-2">This is the most important rule for Solana payments.</p>
           <p style={{ color: "hsl(var(--accent-mineral))" }}>
             The <code className="font-mono text-[11px]">usePaymentStatus</code> hook fires <code className="font-mono text-[11px]">onConfirmed</code> only after
@@ -117,7 +117,7 @@ function Guarantee({ title, children }: { title: string; children: React.ReactNo
     <div className="flex gap-3">
       <div
         className="mt-0.5 w-1.5 h-1.5 rounded-full shrink-0"
-        style={{ background: "#3fb950", marginTop: "6px" }}
+        style={{ background: "hsl(var(--status-success))", marginTop: "6px" }}
       />
       <div>
         <p className="font-semibold mb-1" style={{ color: "hsl(var(--metal-foreground))" }}>{title}</p>

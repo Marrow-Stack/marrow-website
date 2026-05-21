@@ -37,7 +37,7 @@ function Countdown({ expiresAt, onExpired }: { expiresAt: string; onExpired: () 
     return () => clearTimeout(t)
   }, [secs, onExpired])
 
-  const color = secs < 20 ? "#f85149" : secs < 45 ? "#d29922" : "hsl(var(--metal-shine))"
+  const color = secs < 20 ? "hsl(var(--status-error))" : secs < 45 ? "hsl(var(--status-warning))" : "hsl(var(--metal-shine))"
   return (
     <span style={{ color, fontVariantNumeric: "tabular-nums" }}>
       {String(Math.floor(secs / 60)).padStart(2, "0")}:{String(secs % 60).padStart(2, "0")}
@@ -80,7 +80,7 @@ function CopyField({ label, value }: { label: string; value: string }) {
         <button
           onClick={copy}
           className="shrink-0 transition-opacity hover:opacity-70"
-          style={{ color: copied ? "#3fb950" : "hsl(var(--metal-shine))" }}
+          style={{ color: copied ? "hsl(var(--status-success))" : "hsl(var(--metal-shine))" }}
         >
           {copied ? <Check size={13} /> : <Copy size={13} />}
         </button>
@@ -141,7 +141,8 @@ function SolanaPaymentPanel({
     finally   { setVerifying(false) }
   }
 
-  useEffect(() => { fetchQuote() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
+  useEffect(() => { fetchQuote() }, [])
 
   if (loading) {
     return (
@@ -182,7 +183,7 @@ function SolanaPaymentPanel({
       {expired && (
         <div
           className="flex items-center gap-2 p-3 rounded-xl text-sm"
-          style={{ background: "rgba(210,153,34,0.1)", border: "1px solid rgba(210,153,34,0.25)", color: "#d29922" }}
+          style={{ background: "hsl(var(--status-warning) / 0.10)", border: "1px solid hsl(var(--status-warning) / 0.25)", color: "hsl(var(--status-warning))" }}
         >
           <AlertCircle size={14} />
           Quote expired.{" "}
@@ -238,7 +239,7 @@ function SolanaPaymentPanel({
       {error && (
         <div
           className="flex items-start gap-2 p-3 rounded-xl text-sm"
-          style={{ background: "rgba(248,81,73,0.1)", border: "1px solid rgba(248,81,73,0.2)", color: "#f85149" }}
+          style={{ background: "hsl(var(--status-error) / 0.10)", border: "1px solid hsl(var(--status-error) / 0.20)", color: "hsl(var(--status-error))" }}
         >
           <AlertCircle size={14} className="mt-0.5 shrink-0" />
           {error}
@@ -289,7 +290,7 @@ export function CheckoutClient({ block, githubLogin, cryptoDefault }: Props) {
         animate={{ opacity: 1, y: 0 }}
         className="text-center py-16"
       >
-        <CheckCircle2 size={48} className="mx-auto mb-4" style={{ color: "#3fb950" }} />
+        <CheckCircle2 size={48} className="mx-auto mb-4" style={{ color: "hsl(var(--status-success))" }} />
         <h2 className="text-2xl font-black text-reveal-light mb-2">Payment verified</h2>
         <p className="text-sm mb-6" style={{ color: "hsl(var(--accent-mineral))" }}>
           {githubLogin
@@ -355,7 +356,7 @@ export function CheckoutClient({ block, githubLogin, cryptoDefault }: Props) {
           </motion.button>
 
           {dodoError && (
-            <p className="text-xs" style={{ color: "#f85149" }}>{dodoError}</p>
+            <p className="text-xs" style={{ color: "hsl(var(--status-error))" }}>{dodoError}</p>
           )}
 
           {/* Solana rail */}

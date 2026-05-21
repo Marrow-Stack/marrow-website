@@ -33,7 +33,7 @@ export default async function CheckoutSuccessPage({
       <main className="container mx-auto max-w-md px-4 pt-36 pb-24 text-center">
         {isPaid ? (
           <>
-            <CheckCircle2 size={48} className="mx-auto mb-4" style={{ color: "#3fb950" }} />
+            <CheckCircle2 size={48} className="mx-auto mb-4" style={{ color: "hsl(var(--status-success))" }} />
             <h1 className="text-2xl font-black text-reveal-light mb-2">Payment received</h1>
             <p className="text-sm mb-8" style={{ color: "hsl(var(--accent-mineral))" }}>
               Your purchase of <strong>{blockName}</strong> is confirmed.
@@ -42,7 +42,7 @@ export default async function CheckoutSuccessPage({
           </>
         ) : (
           <>
-            <AlertCircle size={48} className="mx-auto mb-4" style={{ color: "#d29922" }} />
+            <AlertCircle size={48} className="mx-auto mb-4" style={{ color: "hsl(var(--status-warning))" }} />
             <h1 className="text-2xl font-black text-reveal-light mb-2">Payment processing</h1>
             <p className="text-sm mb-8" style={{ color: "hsl(var(--accent-mineral))" }}>
               We&apos;re confirming your payment. This usually takes a few seconds.

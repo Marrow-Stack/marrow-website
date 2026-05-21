@@ -125,7 +125,7 @@ export async function PATCH(req: NextRequest) {
             { error: "relation 'members' does not exist", cause: "The migration has not been run.", fix: "Run the MIGRATION constant in Supabase SQL Editor." },
           ].map(({ error, cause, fix }) => (
             <div key={error} className="space-y-1 pb-4 border-b last:border-b-0" style={{ borderColor: "hsl(var(--metal-border))" }}>
-              <p className="font-mono text-[11px]" style={{ color: "#f85149" }}>{error}</p>
+              <p className="font-mono text-[11px]" style={{ color: "hsl(var(--status-error))" }}>{error}</p>
               <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Cause:</strong> {cause}</p>
               <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Fix:</strong> {fix}</p>
             </div>

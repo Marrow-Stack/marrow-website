@@ -3,30 +3,38 @@ import { auth } from "@/lib/auth"
 import { deliverBlock, getRepoForBlock } from "@/lib/github"
 import { getOrderById } from "@/lib/orders"
 import { sendDeliveryEmail } from "@/lib/email"
+import { limits, getIp } from "@/lib/ratelimit"
+import { maintenanceGuard, rateLimitExceeded, readBody } from "@/lib/api"
 
-// POST /api/delivery/redeliver
-// Body: { orderId: string }
-// Safe to call multiple times — delivery is idempotent.
+export const dynamic = "force-dynamic"
+export const runtime = "nodejs"
+
 export async function POST(req: NextRequest) {
+  const maintenance = maintenanceGuard()
+  if (maintenance) return maintenance
+
+  const ip = getIp(req)
+  const rl = await limits.delivery(ip)
+  if (!rl.ok) return rateLimitExceeded()
+
   const session = await auth()
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthenticated" }, { status: 401 })
+    return NextResponse.json({ error: { code: "UNAUTHENTICATED", message: "Unauthenticated" } }, { status: 401 })
   }
 
-  const body = await req.json().catch(() => null)
+  const body    = await readBody<{ orderId?: string }>(req)
   const orderId = String(body?.orderId ?? "").trim()
   if (!orderId) {
-    return NextResponse.json({ error: "orderId required" }, { status: 400 })
+    return NextResponse.json({ error: { code: "BAD_REQUEST", message: "orderId required" } }, { status: 400 })
   }
 
-  // Verify the order belongs to this user
   const order = await getOrderById(orderId)
-  if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 })
+  if (!order) return NextResponse.json({ error: { code: "NOT_FOUND", message: "Order not found" } }, { status: 404 })
   if (order.user_id !== session.user.id) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    return NextResponse.json({ error: { code: "FORBIDDEN", message: "Forbidden" } }, { status: 403 })
   }
   if (order.status !== "paid" && order.status !== "delivered") {
-    return NextResponse.json({ error: "Order not paid" }, { status: 409 })
+    return NextResponse.json({ error: { code: "INVALID_STATE", message: "Order not paid" } }, { status: 409 })
   }
 
   const result = await deliverBlock(orderId)
@@ -40,10 +48,9 @@ export async function POST(req: NextRequest) {
   }
 
   if (!result.delivered && result.error) {
-    return NextResponse.json({ ok: false, error: result.error }, { status: 500 })
+    return NextResponse.json({ ok: false, error: { code: "DELIVERY_FAILED", message: result.error } }, { status: 500 })
   }
 
-  // Send email if delivery succeeded and we have the buyer's email
   if (result.delivered && session.user.email && order.github_username) {
     const repos = getRepoForBlock(order.block_id)
     await sendDeliveryEmail({

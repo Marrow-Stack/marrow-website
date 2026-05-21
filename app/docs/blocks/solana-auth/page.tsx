@@ -60,7 +60,7 @@ export default function SolanaAuthDocsPage() {
         </p>
         <div
           className="p-3 rounded-xl text-xs"
-          style={{ background: "rgba(210,153,34,0.1)", border: "1px solid rgba(210,153,34,0.2)", color: "#d29922" }}
+          style={{ background: "hsl(var(--status-warning) / 0.10)", border: "1px solid hsl(var(--status-warning) / 0.20)", color: "hsl(var(--status-warning))" }}
         >
           The playground on the block detail page uses <strong>devnet</strong> with simulated wallets.
           Your production integration targets <strong>mainnet-beta</strong>. Set <InlineCode>NEXT_PUBLIC_SOLANA_CLUSTER=mainnet-beta</InlineCode>{" "}
@@ -196,7 +196,7 @@ export default function SignInPage() {
             { error: "relation 'auth_nonces' does not exist", cause: "The SQL migration has not been run.", fix: "Run the MIGRATION constant from solana-auth.tsx in Supabase SQL Editor." },
           ].map(({ error, cause, fix }) => (
             <div key={error} className="space-y-1 pb-4 border-b last:border-b-0" style={{ borderColor: "hsl(var(--metal-border))" }}>
-              <p className="font-mono text-[11px]" style={{ color: "#f85149" }}>{error}</p>
+              <p className="font-mono text-[11px]" style={{ color: "hsl(var(--status-error))" }}>{error}</p>
               <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Cause:</strong> {cause}</p>
               <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Fix:</strong> {fix}</p>
             </div>

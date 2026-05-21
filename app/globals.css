@@ -17,6 +17,18 @@
   --metal-gradient: linear-gradient(145deg,
       hsl(210 40% 98% / 0.9) 0%,
       hsl(214 32% 91% / 0.35) 100%);
+
+  /* Semantic status colors — used for order/delivery state badges */
+  --status-success: 137 72% 45%;    /* GitHub green — delivered */
+  --status-info:    210 96% 74%;    /* GitHub blue  — paid/info */
+  --status-warning: 32 97% 67%;    /* GitHub orange — warning */
+  --status-error:   4 90% 58%;     /* GitHub red    — failed */
+
+  /* Code block colors — GitHub dark palette mapped to HSL */
+  --code-bg:         216 28%  7%;   /* ~#0d1117 GitHub dark code background */
+  --code-header-bg:  216 19% 10%;  /* ~#161b22 GitHub dark code header */
+  --code-comment:    213  8% 45%;  /* ~#6e7681 GitHub muted/comment text */
+  --code-text:       207 15% 82%;  /* ~#c9d1d9 GitHub default code text */
 }
 
 .dark {
@@ -36,6 +48,18 @@
   --metal-gradient: linear-gradient(145deg,
       hsl(240 4% 16% / 0.5) 0%,
       hsl(240 10% 4% / 0) 100%);
+
+  /* Status colors same in dark mode (they're self-luminous semantic colors) */
+  --status-success: 137 72% 45%;
+  --status-info:    210 96% 74%;
+  --status-warning: 32 97% 67%;
+  --status-error:   4 90% 58%;
+
+  /* Code block colors — same in dark mode (code blocks are always dark) */
+  --code-bg:         216 28%  7%;
+  --code-header-bg:  216 19% 10%;
+  --code-comment:    213  8% 45%;
+  --code-text:       207 15% 82%;
 }
 
 @theme inline {

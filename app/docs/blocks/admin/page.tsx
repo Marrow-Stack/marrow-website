@@ -126,7 +126,7 @@ export async function POST(req: NextRequest) {
             { error: "Cannot read properties of undefined (reading 'rows')", cause: "Supabase query returned null — table does not exist or RLS blocked it.", fix: "Check that the migration ran and that the service role key is correct." },
           ].map(({ error, cause, fix }) => (
             <div key={error} className="space-y-1 pb-4 border-b last:border-b-0" style={{ borderColor: "hsl(var(--metal-border))" }}>
-              <p className="font-mono text-[11px]" style={{ color: "#f85149" }}>{error}</p>
+              <p className="font-mono text-[11px]" style={{ color: "hsl(var(--status-error))" }}>{error}</p>
               <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Cause:</strong> {cause}</p>
               <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Fix:</strong> {fix}</p>
             </div>

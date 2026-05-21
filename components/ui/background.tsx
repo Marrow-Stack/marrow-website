@@ -125,7 +125,7 @@ export const Background = ({ className }: { className?: string }) => {
                     WebkitMaskImage: 'radial-gradient(circle at center, black 20%, transparent 90%)',
                     transform: 'perspective(1200px) rotateX(68deg) scale(1.6) translateY(-10%)',
                     transformOrigin: 'center center',
-                    color: 'var(--metal-border, #64748b)'
+                    color: 'var(--metal-border)'
                 }}
             />
 

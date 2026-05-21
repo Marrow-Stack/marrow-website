@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useCallback } from "react"
+import React, { useState, useCallback, Suspense } from "react"
 import { signIn } from "next-auth/react"
 import { motion } from "framer-motion"
 import { Wallet, Loader2, AlertCircle, ArrowLeft } from "lucide-react"
@@ -73,7 +73,7 @@ async function solanaSignIn(setStatus: (s: string) => void, setError: (e: string
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 
-export default function SignInPage() {
+function SignInContent() {
   const searchParams = useSearchParams()
   const callbackUrl  = searchParams.get("callbackUrl") ?? "/dashboard"
   const [status, setStatus]  = useState("")
@@ -162,7 +162,7 @@ export default function SignInPage() {
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             className="mt-4 flex items-start gap-2 p-3 rounded-xl text-sm"
-            style={{ background: "rgba(248,81,73,0.1)", border: "1px solid rgba(248,81,73,0.2)", color: "#f85149" }}
+            style={{ background: "hsl(var(--status-error) / 0.10)", border: "1px solid hsl(var(--status-error) / 0.20)", color: "hsl(var(--status-error))" }}
           >
             <AlertCircle size={15} className="mt-0.5 shrink-0" />
             {error}
@@ -176,5 +176,13 @@ export default function SignInPage() {
         </p>
       </motion.div>
     </div>
+  )
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense>
+      <SignInContent />
+    </Suspense>
   )
 }

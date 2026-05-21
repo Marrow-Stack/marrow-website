@@ -72,7 +72,7 @@ function GithubUsernamePrompt({ onSaved }: { onSaved: () => void }) {
         </motion.button>
       </div>
       {error && (
-        <p className="text-xs" style={{ color: "#f85149" }}>{error}</p>
+        <p className="text-xs" style={{ color: "hsl(var(--status-error))" }}>{error}</p>
       )}
     </form>
   )
@@ -90,7 +90,7 @@ function OrderCard({
   onRedeliver: (orderId: string) => Promise<{ needsGithubUsername?: boolean; error?: string }>
 }) {
   const [delivering, startDelivering] = useTransition()
-  const [result, setResult]           = useState<{ needsGithubUsername?: boolean; error?: string } | null>(null)
+  const [_result, setResult]          = useState<{ needsGithubUsername?: boolean; error?: string } | null>(null)
   const [showUsernamePrompt, setShowUsernamePrompt] = useState(false)
 
   const latestDelivery = deliveries[0]
@@ -106,9 +106,9 @@ function OrderCard({
   }
 
   const statusColor =
-    order.status === "delivered" ? "#3fb950"
-    : order.status === "paid"   ? "#79c0ff"
-    : order.status === "failed" ? "#f85149"
+    order.status === "delivered" ? "hsl(var(--status-success))"
+    : order.status === "paid"   ? "hsl(var(--status-info))"
+    : order.status === "failed" ? "hsl(var(--status-error))"
     : "hsl(var(--metal-shine))"
 
   const statusLabel = {
@@ -150,14 +150,14 @@ function OrderCard({
       {order.status === "paid" || order.status === "delivered" ? (
         <div className="space-y-3">
           {isDelivered && latestDelivery && (
-            <div className="flex items-center gap-2 text-xs" style={{ color: "#3fb950" }}>
+            <div className="flex items-center gap-2 text-xs" style={{ color: "hsl(var(--status-success))" }}>
               <Check size={12} />
               Delivered to @{latestDelivery.github_username} · {latestDelivery.repo}
             </div>
           )}
 
           {hasFailed && !showUsernamePrompt && (
-            <div className="flex items-center gap-2 text-xs" style={{ color: "#f85149" }}>
+            <div className="flex items-center gap-2 text-xs" style={{ color: "hsl(var(--status-error))" }}>
               <AlertCircle size={12} />
               {latestDelivery.error === "github_username_required"
                 ? "GitHub username needed"
@@ -217,9 +217,9 @@ function OrderCard({
 // ─── Dashboard root client component ─────────────────────────────────────────
 
 export function DashboardClient({
-  userId,
-  githubLogin,
-  walletAddress,
+  userId: _userId,
+  githubLogin: _githubLogin,
+  walletAddress: _walletAddress,
   ordersWithDeliveries,
 }: Props) {
   const [items, setItems] = useState(ordersWithDeliveries)

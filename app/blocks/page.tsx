@@ -78,7 +78,7 @@ export default function BlocksPage() {
                 background: "var(--metal-gradient)",
                 border: "1px solid hsl(var(--metal-border))",
                 color: "hsl(var(--metal-foreground))",
-                // @ts-ignore
+                // @ts-expect-error — CSS custom property not in React.CSSProperties
                 "--tw-ring-color": "hsl(var(--metal-shine))",
               }}
             />

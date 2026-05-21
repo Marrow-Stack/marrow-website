@@ -14,11 +14,11 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "").split(",").map((e) => e.tr
 
 const STATUS_COLOR: Record<string, string> = {
   created:          "hsl(var(--metal-shine))",
-  awaiting_payment: "#d29922",
-  paid:             "#79c0ff",
-  delivered:        "#3fb950",
-  failed:           "#f85149",
-  refunded:         "#6e7681",
+  awaiting_payment: "hsl(var(--status-warning))",
+  paid:             "hsl(var(--status-info))",
+  delivered:        "hsl(var(--status-success))",
+  failed:           "hsl(var(--status-error))",
+  refunded:         "hsl(var(--metal-shine))",
 }
 
 export default async function AdminOrdersPage() {
@@ -122,8 +122,8 @@ export default async function AdminOrdersPage() {
                         <span
                           className="text-[10px]"
                           style={{
-                            color: latestDelivery.status === "delivered" ? "#3fb950"
-                              : latestDelivery.status === "failed" ? "#f85149"
+                            color: latestDelivery.status === "delivered" ? "hsl(var(--status-success))"
+                              : latestDelivery.status === "failed" ? "hsl(var(--status-error))"
                               : "hsl(var(--metal-shine))",
                           }}
                         >

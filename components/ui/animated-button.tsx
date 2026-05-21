@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 type AnimatedButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
   MotionProps & {
     children?: React.ReactNode;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     as?: any;
   };
 
@@ -21,7 +22,8 @@ const AnimatedButton: React.FC<AnimatedButtonProps> = ({
   as = "button",
   ...rest
 }) => {
-  const Component = (motion as any)[as] || motion.button;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const Component = (motion as any)[as] ?? motion.button;
 
   return (
     <Component
@@ -56,7 +58,9 @@ const AnimatedButton: React.FC<AnimatedButtonProps> = ({
           maskImage:
             "linear-gradient(-75deg, white calc(var(--mask-x) + 20%), transparent calc(var(--mask-x) + 30%), white calc(var(--mask-x) + 100%))",
         }}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         initial={{ ["--mask-x" as any]: "100%" } as any}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         animate={{ ["--mask-x" as any]: "-100%" } as any}
         transition={{
           repeat: Infinity,
@@ -75,10 +79,10 @@ const AnimatedButton: React.FC<AnimatedButtonProps> = ({
           background:
             "linear-gradient(-75deg, transparent 30%, var(--shine) 50%, transparent 70%)",
           backgroundSize: "200% 100%",
-          mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+          mask: "linear-gradient(white 0 0) content-box, linear-gradient(white 0 0)",
           maskComposite: "exclude",
           WebkitMask:
-            "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+            "linear-gradient(white 0 0) content-box, linear-gradient(white 0 0)",
           WebkitMaskComposite: "xor",
         }}
         initial={{ backgroundPosition: "100% 0", opacity: 0 }}

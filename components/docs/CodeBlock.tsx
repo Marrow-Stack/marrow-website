@@ -22,13 +22,13 @@ export function CodeBlock({ code, language = "typescript", filename }: CodeBlock
   return (
     <div
       className="rounded-xl overflow-hidden border text-[12.5px] font-mono leading-6"
-      style={{ background: "#0d1117", borderColor: "rgba(255,255,255,0.08)" }}
+      style={{ background: "hsl(var(--code-bg))", borderColor: "hsl(0 0% 100% / 0.08)" }}
     >
       <div
         className="flex items-center justify-between px-4 py-2.5 border-b"
-        style={{ background: "#161b22", borderColor: "rgba(255,255,255,0.08)" }}
+        style={{ background: "hsl(var(--code-header-bg))", borderColor: "hsl(0 0% 100% / 0.08)" }}
       >
-        <span style={{ color: "#6e7681" }}>{filename ?? language}</span>
+        <span style={{ color: "hsl(var(--code-comment))" }}>{filename ?? language}</span>
         <motion.button
           onClick={handleCopy}
           whileTap={{ y: 2 }}
@@ -38,14 +38,14 @@ export function CodeBlock({ code, language = "typescript", filename }: CodeBlock
             background: copied ? "rgba(35,134,54,0.15)" : "rgba(255,255,255,0.06)",
             border:     "1px solid",
             borderColor: copied ? "rgba(63,185,80,0.3)" : "rgba(255,255,255,0.1)",
-            color:      copied ? "#3fb950" : "#8b949e",
+            color:      copied ? "hsl(var(--status-success))" : "hsl(var(--code-comment))",
           }}
         >
           {copied ? <Check size={11} /> : <Copy size={11} />}
           {copied ? "Copied" : "Copy"}
         </motion.button>
       </div>
-      <pre className="p-4 overflow-x-auto" style={{ color: "#c9d1d9" }}>
+      <pre className="p-4 overflow-x-auto" style={{ color: "hsl(var(--code-text))" }}>
         <code>{code}</code>
       </pre>
     </div>
@@ -99,13 +99,13 @@ export function EnvTable({ rows }: EnvTableProps) {
                   className="px-1.5 py-0.5 rounded text-[10px] font-medium"
                   style={{
                     background: row.required ? "rgba(248,81,73,0.12)" : "rgba(255,255,255,0.06)",
-                    color:      row.required ? "#f85149" : "#6e7681",
+                    color:      row.required ? "hsl(var(--status-error))" : "hsl(var(--code-comment))",
                   }}
                 >
                   {row.required ? "yes" : "no"}
                 </span>
               </td>
-              <td className="px-4 py-2.5 font-mono" style={{ color: "#6e7681" }}>{row.default ?? "—"}</td>
+              <td className="px-4 py-2.5 font-mono" style={{ color: "hsl(var(--code-comment))" }}>{row.default ?? "—"}</td>
               <td className="px-4 py-2.5" style={{ color: "hsl(var(--accent-mineral))" }}>{row.desc}</td>
             </tr>
           ))}

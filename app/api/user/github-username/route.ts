@@ -1,32 +1,37 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
-import { validateGithubUsername } from "@/lib/github"
+import { validateGithubUsername, deliverBlock, getRepoForBlock } from "@/lib/github"
 import { getAdminClient } from "@/lib/supabase"
-import { deliverBlock } from "@/lib/github"
 import { getOrdersByUser } from "@/lib/orders"
 import { sendDeliveryEmail } from "@/lib/email"
-import { getRepoForBlock } from "@/lib/github"
+import { limits, getIp } from "@/lib/ratelimit"
+import { rateLimitExceeded, readBody } from "@/lib/api"
+
+export const dynamic = "force-dynamic"
+export const runtime = "nodejs"
 
 // POST /api/user/github-username
-// Body: { githubUsername: string }
 // Validates the username against GitHub API, saves it, and re-triggers
 // delivery for any paid but undelivered orders belonging to this user.
 export async function POST(req: NextRequest) {
+  const ip = getIp(req)
+  const rl = await limits.githubValidate(ip)
+  if (!rl.ok) return rateLimitExceeded()
+
   const session = await auth()
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthenticated" }, { status: 401 })
+    return NextResponse.json({ error: { code: "UNAUTHENTICATED", message: "Unauthenticated" } }, { status: 401 })
   }
 
-  const body = await req.json().catch(() => null)
+  const body = await readBody<{ githubUsername?: string }>(req)
   const githubUsername = String(body?.githubUsername ?? "").trim()
   if (!githubUsername) {
-    return NextResponse.json({ error: "githubUsername required" }, { status: 400 })
+    return NextResponse.json({ error: { code: "BAD_REQUEST", message: "githubUsername required" } }, { status: 400 })
   }
 
-  // Validate against GitHub API
   const validation = await validateGithubUsername(githubUsername)
   if (!validation.valid) {
-    return NextResponse.json({ error: validation.reason }, { status: 422 })
+    return NextResponse.json({ error: { code: "INVALID_USERNAME", message: validation.reason } }, { status: 422 })
   }
 
   const db = getAdminClient()
@@ -36,21 +41,14 @@ export async function POST(req: NextRequest) {
     .eq("id", session.user.id)
 
   if (error) {
-    return NextResponse.json({ error: "Failed to save username" }, { status: 500 })
+    return NextResponse.json({ error: { code: "INTERNAL_ERROR", message: "Failed to save username" } }, { status: 500 })
   }
 
-  // Re-trigger delivery for any paid orders that need GitHub delivery
   const orders = await getOrdersByUser(session.user.id)
-  const toDeliver = orders.filter(
-    (o) => o.status === "paid" || o.status === "delivered"
-  )
+  const toDeliver = orders.filter((o) => o.status === "paid")
 
   const results: { orderId: string; delivered: boolean }[] = []
   for (const order of toDeliver) {
-    if (order.status === "delivered") {
-      results.push({ orderId: order.id, delivered: true })
-      continue
-    }
     const result = await deliverBlock(order.id)
     results.push({ orderId: order.id, delivered: result.delivered })
 

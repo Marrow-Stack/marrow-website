@@ -38,16 +38,19 @@ const Button = React.forwardRef<HTMLButtonElement, MarrowButtonProps>(
     }
 
     if (asChild) {
-      const { 
-        whileHover, whileTap, transition, onAnimationStart, 
-        layout, initial, animate, exit, variants: _v, ...slotProps 
-      } = props as any
+      const {
+        // Strip motion-only props before passing to Slot
+        whileHover: _wh, whileTap: _wt, transition: _tr, onAnimationStart: _oas,
+        layout: _l, initial: _i, animate: _a, exit: _e, variants: _v,
+        ...slotProps
+      } = props
 
       return (
-        <Slot 
+        <Slot
           ref={ref}
-          className={cn(marrowButtonVariants({ variant, size, className }))} 
-          {...slotProps}
+          className={cn(marrowButtonVariants({ variant, size, className }))}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          {...(slotProps as any)}
         >
           {children}
         </Slot>
@@ -59,7 +62,7 @@ const Button = React.forwardRef<HTMLButtonElement, MarrowButtonProps>(
         ref={ref}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
-        style={{ x: mouseX, y: mouseY } as any}
+        style={{ x: mouseX, y: mouseY }}
         // Tactile switch travel (3px)
         whileTap={{ y: 3, scale: 0.98 }} 
         transition={{ type: "spring", stiffness: 600, damping: 20 }}

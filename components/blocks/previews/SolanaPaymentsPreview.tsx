@@ -231,7 +231,7 @@ export function SolanaPaymentsPreview() {
             </div>
 
             <p className="text-[10px]" style={{ color: "#6e7681" }}>
-              Deliver product only after this callback. Never trust client-sent "paid: true".
+              Deliver product only after this callback. Never trust client-sent &quot;paid: true&quot;.
             </p>
           </motion.div>
         )}

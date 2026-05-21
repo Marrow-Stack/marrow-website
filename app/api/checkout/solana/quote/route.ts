@@ -3,59 +3,63 @@ import { auth } from "@/lib/auth"
 import { getBlock } from "@/lib/blocks-data"
 import { buildQuote } from "@/lib/price"
 import { createOrder, setOrderAwaitingPayment } from "@/lib/orders"
+import { safeLog } from "@/lib/log"
+import { limits, getIp } from "@/lib/ratelimit"
+import { maintenanceGuard, rateLimitExceeded, readBody } from "@/lib/api"
 
-// POST /api/checkout/solana/quote
-// Body: { blockId: string; currency: 'sol' | 'usdc' }
-// Returns: { orderId, currency, amount, solPriceUsd?, treasuryAddress, usdcMint?, quoteExpiresAt }
-//
-// MAINNET ONLY — never shares config with the devnet playground.
-// The RPC assertion at startup (see lib/price.ts boot check) ensures this.
+export const dynamic = "force-dynamic"
+export const runtime = "nodejs"
 
 function assertMainnet() {
-  const rpc = process.env.STORE_SOLANA_RPC_URL ?? ""
-  if (!rpc) throw new Error("STORE_SOLANA_RPC_URL not set")
-  if (!rpc.includes("mainnet")) {
+  const cluster = process.env.SOLANA_CLUSTER_STORE
+  if (cluster !== "mainnet-beta") {
     throw new Error(
-      "STORE_SOLANA_RPC_URL does not contain 'mainnet'. " +
-      "The store must use mainnet-beta. Refusing to create a payment quote."
+      `SOLANA_CLUSTER_STORE=${cluster} — the store must use mainnet-beta. Refusing to create a payment quote.`
     )
   }
+  const rpc = process.env.STORE_SOLANA_RPC_URL ?? ""
+  if (!rpc) throw new Error("STORE_SOLANA_RPC_URL not set")
 }
 
 export async function POST(req: NextRequest) {
+  const maintenance = maintenanceGuard()
+  if (maintenance) return maintenance
+
+  const ip = getIp(req)
+  const rl = await limits.checkout(ip)
+  if (!rl.ok) return rateLimitExceeded()
+
   const session = await auth()
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthenticated" }, { status: 401 })
+    return NextResponse.json({ error: { code: "UNAUTHENTICATED", message: "Unauthenticated" } }, { status: 401 })
   }
 
-  // Hard guard: mainnet only
   try {
     assertMainnet()
   } catch (e) {
-    return NextResponse.json({ error: String(e) }, { status: 503 })
+    safeLog.error("[solana-quote]", String(e))
+    return NextResponse.json({ error: { code: "CLUSTER_MISMATCH", message: String(e) } }, { status: 503 })
   }
 
-  const body     = await req.json().catch(() => null)
+  const body     = await readBody<{ blockId?: string; currency?: string }>(req)
   const blockId  = String(body?.blockId  ?? "").trim()
   const currency = String(body?.currency ?? process.env.STORE_CRYPTO_DEFAULT ?? "usdc").toLowerCase()
 
-  if (!blockId) return NextResponse.json({ error: "blockId required" }, { status: 400 })
+  if (!blockId) return NextResponse.json({ error: { code: "BAD_REQUEST", message: "blockId required" } }, { status: 400 })
   if (currency !== "sol" && currency !== "usdc") {
-    return NextResponse.json({ error: "currency must be 'sol' or 'usdc'" }, { status: 400 })
+    return NextResponse.json({ error: { code: "BAD_REQUEST", message: "currency must be 'sol' or 'usdc'" } }, { status: 400 })
   }
 
   const block = getBlock(blockId)
-  if (!block) return NextResponse.json({ error: "Block not found" }, { status: 404 })
+  if (!block) return NextResponse.json({ error: { code: "NOT_FOUND", message: "Block not found" } }, { status: 404 })
 
   const treasury = process.env.STORE_SOL_TREASURY_ADDRESS
   if (!treasury) {
-    return NextResponse.json({ error: "Treasury address not configured" }, { status: 503 })
+    return NextResponse.json({ error: { code: "CONFIG_ERROR", message: "Treasury address not configured" } }, { status: 503 })
   }
 
-  // Build price quote
   const quote = await buildQuote(block.price)
 
-  // Create the order
   const order = await createOrder({
     userId:    session.user.id,
     blockId:   block.id,
@@ -63,7 +67,6 @@ export async function POST(req: NextRequest) {
     amountUsd: block.price,
   })
 
-  // Transition to awaiting_payment with quote data
   await setOrderAwaitingPayment(order.id, currency === "sol" ? "solana" : "usdc", {
     cryptoAmount:   currency === "sol" ? quote.solAmount : quote.usdcAmount,
     cryptoCurrency: currency === "sol" ? "SOL" : "USDC",

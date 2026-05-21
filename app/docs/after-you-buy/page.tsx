@@ -93,7 +93,7 @@ export default function AfterYouBuyPage() {
             (within ±1.5%), transaction finalized. Delivery is triggered after verification.
           </li>
         </ul>
-        <p className="text-xs rounded-xl p-3" style={{ background: "rgba(210,153,34,0.1)", border: "1px solid rgba(210,153,34,0.2)", color: "#d29922" }}>
+        <p className="text-xs rounded-xl p-3" style={{ background: "hsl(var(--status-warning) / 0.10)", border: "1px solid hsl(var(--status-warning) / 0.20)", color: "hsl(var(--status-warning))" }}>
           Solana payments use <strong>mainnet-beta only</strong>. The playground previews on the block
           detail pages use devnet with simulated funds and are completely separate — they never
           touch the mainnet treasury.

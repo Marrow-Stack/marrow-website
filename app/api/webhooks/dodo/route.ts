@@ -4,13 +4,33 @@ import { getOrderById, getOrderByExternalPaymentId, markOrderPaid } from "@/lib/
 import { deliverBlock, getRepoForBlock } from "@/lib/github"
 import { sendDeliveryEmail } from "@/lib/email"
 import { getAdminClient } from "@/lib/supabase"
+import { safeLog } from "@/lib/log"
+import { limits, getIp } from "@/lib/ratelimit"
+import { rateLimitExceeded } from "@/lib/api"
 
-// Dodo Payments webhook handler.
-// Signature spec: standardwebhooks (webhook-id / webhook-signature / webhook-timestamp headers).
-// Delivery is triggered HERE — by server-verified webhook — never by client redirect.
+// Webhook routes must never be cached or run on edge.
+// Signature verification libraries require Node.js crypto primitives.
+export const dynamic = "force-dynamic"
+export const runtime = "nodejs"
+
+const MAX_BODY_BYTES = 1024 * 1024 // 1 MB
 
 export async function POST(req: NextRequest) {
+  // Rate limit by IP to prevent webhook flooding
+  const ip = getIp(req)
+  const rl = await limits.webhook(ip)
+  if (!rl.ok) return rateLimitExceeded()
+
+  // Body size guard before reading
+  const contentLength = req.headers.get("content-length")
+  if (contentLength && parseInt(contentLength, 10) > MAX_BODY_BYTES) {
+    return new NextResponse("Payload too large", { status: 413 })
+  }
+
   const rawBody = await req.text()
+  if (rawBody.length > MAX_BODY_BYTES) {
+    return new NextResponse("Payload too large", { status: 413 })
+  }
 
   const valid = await verifyDodoWebhook(rawBody, {
     "webhook-id":        req.headers.get("webhook-id")        ?? "",
@@ -19,7 +39,8 @@ export async function POST(req: NextRequest) {
   })
 
   if (!valid) {
-    console.warn("[dodo-webhook] Invalid signature")
+    // Log nothing about the body — signature mismatch may indicate probing
+    safeLog.warn("[dodo-webhook] Invalid signature from", ip)
     return new NextResponse("Unauthorized", { status: 401 })
   }
 
@@ -31,36 +52,32 @@ export async function POST(req: NextRequest) {
   }
 
   const type = event.type
-  console.log(`[dodo-webhook] ${type}`)
+  safeLog.log(`[dodo-webhook] ${type}`)
 
   try {
     if (type === "payment.succeeded") {
       const payment   = event.data
       const paymentId = String(payment.payment_id ?? payment.id ?? "")
 
-      // Metadata keys are prefixed with "metadata_" by our createCheckoutSession helper.
-      // Dodo may strip or keep the prefix depending on version — check both.
       const meta = (payment.metadata ?? {}) as Record<string, string>
       const orderId = meta["metadata_orderId"] || meta["orderId"] || ""
       const blockId = meta["metadata_blockId"] || meta["blockId"] || ""
       const userId  = meta["metadata_userId"]  || meta["userId"]  || ""
 
       if (!paymentId) {
-        console.error("[dodo-webhook] Missing payment_id in event", payment)
+        safeLog.error("[dodo-webhook] Missing payment_id in event")
         return new NextResponse("Missing payment_id", { status: 422 })
       }
 
-      // Idempotency — reject if already processed
+      // Idempotency — no-op if already processed
       const existingByPayment = await getOrderByExternalPaymentId(paymentId)
       if (existingByPayment) {
         return new NextResponse("Already processed", { status: 200 })
       }
 
-      // Resolve the order: prefer orderId from metadata, fall back to blockId + userId lookup
       let order = orderId ? await getOrderById(orderId) : null
 
       if (!order && blockId && userId) {
-        // Fallback: find the most recent awaiting_payment order for this user+block
         const db = getAdminClient()
         const { data } = await db
           .from("ms_orders")
@@ -75,20 +92,17 @@ export async function POST(req: NextRequest) {
       }
 
       if (!order) {
-        console.error("[dodo-webhook] Order not found", { orderId, blockId, userId })
+        safeLog.error("[dodo-webhook] Order not found", { orderId, blockId, userId: "[redacted]" })
         return new NextResponse("Order not found", { status: 404 })
       }
 
-      // Mark paid (idempotent)
       const wasNew = await markOrderPaid({ orderId: order.id, externalPaymentId: paymentId })
       if (!wasNew) {
         return new NextResponse("Already paid", { status: 200 })
       }
 
-      // Deliver
       const delivery = await deliverBlock(order.id)
 
-      // Send email (non-fatal)
       if (!delivery.needsGithubUsername) {
         const db = getAdminClient()
         const { data: user } = await db
@@ -106,7 +120,7 @@ export async function POST(req: NextRequest) {
             blockSlug:      order.block_id,
             githubUsername: user.github_login,
             repoUrls:       repos,
-          }).catch((e) => console.warn("[dodo-webhook] email error:", e))
+          }).catch((e) => safeLog.warn("[dodo-webhook] email error:", e))
         }
       }
     }
@@ -119,10 +133,14 @@ export async function POST(req: NextRequest) {
           .from("ms_orders")
           .update({ status: "refunded" })
           .eq("external_payment_id", paymentId)
+        // Access policy: refunds do not revoke code access.
+        // Buyer retains repo collaborator access after refund.
+        // See DECISIONS.md for the refund policy.
+        safeLog.log("[dodo-webhook] Order refunded, access retained:", paymentId)
       }
     }
   } catch (err) {
-    console.error("[dodo-webhook] Error:", err)
+    safeLog.error("[dodo-webhook] Error:", err)
   }
 
   return new NextResponse("OK", { status: 200 })

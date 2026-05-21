@@ -1633,7 +1633,7 @@ export function ThemeToggle() {
       <motion.div
         layout
         className="absolute top-0.5 w-6 h-6 rounded-full flex items-center justify-center"
-        style={{ left: isDark ? 'calc(100% - 1.75rem)' : '0.125rem', background: isDark ? '#fbbf24' : '#6d28d9' }}
+        style={{ left: isDark ? 'calc(100% - 1.75rem)' : '0.125rem', background: isDark ? 'hsl(43 96% 56%)' : 'hsl(263 70% 50%)' }}
         transition={{ type: 'spring', stiffness: 500, damping: 30 }}
       >
         {isDark ? <Sun size={12} className="text-black" /> : <Moon size={12} className="text-white" />}

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Wallet, CheckCircle2, XCircle, Loader2, AlertTriangle, ChevronRight, RotateCcw } from "lucide-react";
 
 // Simulated devnet addresses for demonstration

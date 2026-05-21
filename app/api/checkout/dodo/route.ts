@@ -3,52 +3,60 @@ import { auth } from "@/lib/auth"
 import { createOrder, setOrderAwaitingPayment, hasUserPurchasedBlock } from "@/lib/orders"
 import { getBlock } from "@/lib/blocks-data"
 import { createCheckoutSession } from "@/lib/dodopayments"
+import { safeLog } from "@/lib/log"
+import { limits, getIp } from "@/lib/ratelimit"
+import { maintenanceGuard, rateLimitExceeded, readBody } from "@/lib/api"
+
+export const dynamic = "force-dynamic"
+export const runtime = "nodejs"
 
 // DODO_PRODUCT_ID_{BLOCK_ID_UPPER} → the product_id set in the Dodo dashboard.
-// The price lives in Dodo — we never send an amount, just the product.
 function getDodoProductId(blockId: string): string | undefined {
   const key = `DODO_PRODUCT_ID_${blockId.toUpperCase().replace(/-/g, "_")}`
   return process.env[key]
 }
 
-// POST /api/checkout/dodo
-// Body: { blockId: string }
 export async function POST(req: NextRequest) {
+  const maintenance = maintenanceGuard()
+  if (maintenance) return maintenance
+
+  const ip = getIp(req)
+  const rl = await limits.checkout(ip)
+  if (!rl.ok) return rateLimitExceeded()
+
   const session = await auth()
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Sign in required" }, { status: 401 })
+    return NextResponse.json({ error: { code: "UNAUTHENTICATED", message: "Sign in required" } }, { status: 401 })
   }
 
-  const body    = await req.json().catch(() => null)
+  const body    = await readBody<{ blockId?: string }>(req)
   const blockId = String(body?.blockId ?? "").trim()
   if (!blockId) {
-    return NextResponse.json({ error: "blockId required" }, { status: 400 })
+    return NextResponse.json({ error: { code: "BAD_REQUEST", message: "blockId required" } }, { status: 400 })
   }
 
   const block = getBlock(blockId)
   if (!block) {
-    return NextResponse.json({ error: "Block not found" }, { status: 404 })
+    return NextResponse.json({ error: { code: "NOT_FOUND", message: "Block not found" } }, { status: 404 })
   }
 
   const userId = session.user.id
 
-  // Prevent double-purchase
   const alreadyOwns = await hasUserPurchasedBlock(userId, blockId)
   if (alreadyOwns) {
-    return NextResponse.json({ error: "You already own this block." }, { status: 400 })
+    return NextResponse.json({ error: { code: "ALREADY_OWNED", message: "You already own this block." } }, { status: 400 })
   }
 
   const productId = getDodoProductId(blockId)
   if (!productId) {
     return NextResponse.json(
-      { error: `No Dodo product configured for block '${blockId}'. Set DODO_PRODUCT_ID_${blockId.toUpperCase().replace(/-/g, "_")} in env.` },
+      { error: { code: "NO_PRODUCT", message: `No Dodo product configured for '${blockId}'.` } },
       { status: 503 }
     )
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://marrowstack.dev"
 
-  // 1. Create order record
   const order = await createOrder({
     userId,
     blockId:   block.id,
@@ -56,7 +64,6 @@ export async function POST(req: NextRequest) {
     amountUsd: block.price,
   })
 
-  // 2. Create Dodo checkout session
   let checkoutUrl: string
   let paymentId:   string
   try {
@@ -74,11 +81,10 @@ export async function POST(req: NextRequest) {
     checkoutUrl = checkout.checkout_url
     paymentId   = checkout.payment_id
   } catch (err) {
-    console.error("[dodo-checkout] error:", err)
-    return NextResponse.json({ error: String(err) }, { status: 502 })
+    safeLog.error("[dodo-checkout] error:", err)
+    return NextResponse.json({ error: { code: "GATEWAY_ERROR", message: "Payment provider error." } }, { status: 502 })
   }
 
-  // 3. Record the Dodo payment_id so the webhook can find this order
   await setOrderAwaitingPayment(order.id, "dodo", paymentId)
 
   return NextResponse.json({ checkoutUrl })

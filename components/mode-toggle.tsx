@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState }  from "react";
 import { useTheme } from "next-themes";
-import { SunIcon, MoonIcon, Sun } from "lucide-react";
+import { SunIcon, MoonIcon } from "lucide-react";
 
 export const ModeToggle = () => {
     

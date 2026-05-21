@@ -57,7 +57,7 @@ export default function SolanaPaymentsDocsPage() {
         </ul>
         <div
           className="p-3 rounded-xl text-xs"
-          style={{ background: "rgba(210,153,34,0.1)", border: "1px solid rgba(210,153,34,0.2)", color: "#d29922" }}
+          style={{ background: "rgba(210,153,34,0.1)", border: "1px solid rgba(210,153,34,0.2)", color: "hsl(var(--status-warning))" }}
         >
           <strong>Mainnet vs. devnet:</strong> The playground on the block detail page runs on devnet
           with simulated USDC. Production use requires <InlineCode>SOLANA_CLUSTER=mainnet-beta</InlineCode>{" "}
@@ -197,7 +197,7 @@ export default function CheckoutPage({ paymentUri }: { paymentUri: string }) {
             { error: "RPC 429 Too Many Requests", cause: "Using the public Solana RPC endpoint, which has aggressive rate limits.", fix: "Switch to a dedicated mainnet endpoint: Helius (https://helius.dev) or QuickNode. Set SOLANA_RPC_URL accordingly." },
           ].map(({ error, cause, fix }) => (
             <div key={error} className="space-y-1 pb-4 border-b last:border-b-0" style={{ borderColor: "hsl(var(--metal-border))" }}>
-              <p className="font-mono text-[11px]" style={{ color: "#f85149" }}>{error}</p>
+              <p className="font-mono text-[11px]" style={{ color: "hsl(var(--status-error))" }}>{error}</p>
               <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Cause:</strong> {cause}</p>
               <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Fix:</strong> {fix}</p>
             </div>

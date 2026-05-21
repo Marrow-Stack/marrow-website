@@ -147,7 +147,7 @@ export const config = { matcher: ['/dashboard/:path*'] }`} />
             { error: "PostgreSQL RLS error on insert", cause: "Using the anon key instead of the service role key for a write operation.", fix: "Confirm SUPABASE_SERVICE_ROLE_KEY is set and that auth.ts uses it — not NEXT_PUBLIC_SUPABASE_ANON_KEY." },
           ].map(({ error, cause, fix }) => (
             <div key={error} className="space-y-1 pb-4 border-b last:border-b-0" style={{ borderColor: "hsl(var(--metal-border))" }}>
-              <p className="font-mono text-[11px]" style={{ color: "#f85149" }}>{error}</p>
+              <p className="font-mono text-[11px]" style={{ color: "hsl(var(--status-error))" }}>{error}</p>
               <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Cause:</strong> {cause}</p>
               <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Fix:</strong> {fix}</p>
             </div>
