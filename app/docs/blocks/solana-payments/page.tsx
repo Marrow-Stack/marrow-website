@@ -1,202 +1,230 @@
-import React from "react";
-import type { Metadata } from "next";
-import { CodeBlock, EnvTable } from "@/components/docs/CodeBlock";
+import React from "react"
+import type { Metadata } from "next"
+import { CodeBlock, EnvTable, InlineCode } from "@/components/docs/CodeBlock"
+import Link from "next/link"
 
 export const metadata: Metadata = {
-  title: "Solana Payments (USDC) — MarrowStack Docs",
-  description: "Reference-keyed USDC payments with on-chain confirmation, idempotency, Solana Pay URLs, subscription scaffold, and x402 middleware.",
-};
+  title: "Solana Payments (USDC) — Integration Guide — MarrowStack",
+  description: "Post-purchase integration walkthrough for the MarrowStack Solana Payments block: reference-keyed USDC transfers, 6-point on-chain verification, idempotency, x402 middleware.",
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="space-y-4">
+      <h2 className="text-xl font-bold" style={{ color: "hsl(var(--metal-foreground))" }}>{title}</h2>
+      <div className="space-y-3 text-sm leading-relaxed" style={{ color: "hsl(var(--accent-mineral))" }}>
+        {children}
+      </div>
+    </section>
+  )
+}
 
 export default function SolanaPaymentsDocsPage() {
   return (
-    <div className="space-y-10">
+    <div className="space-y-12">
       <div>
-        <p className="text-xs font-bold uppercase tracking-widest mb-2 text-emerald-500">
-          Solana
-        </p>
+        <p className="text-xs font-bold uppercase tracking-widest mb-2 text-emerald-500">Solana</p>
         <h1 className="text-3xl font-black text-reveal-light mb-3">Solana Payments (USDC)</h1>
         <p className="text-sm leading-relaxed" style={{ color: "hsl(var(--accent-mineral))" }}>
-          Reference-keyed USDC payments with on-chain confirmation, idempotency, Solana Pay URL
-          generation, a subscription scaffold, and optional x402 pay-per-request middleware.
+          Reference-keyed USDC payments with 6-point on-chain verification, idempotency,
+          a subscription scaffold, and optional x402 pay-per-request middleware. Devnet playground
+          available on the block detail page — this guide is for{" "}
+          <strong style={{ color: "hsl(var(--metal-foreground))" }}>mainnet-beta production</strong> use.
+        </p>
+        <p className="text-xs mt-3" style={{ color: "hsl(var(--metal-shine))" }}>
+          <Link href="/docs/after-you-buy" className="underline hover:opacity-80">Read the universal post-purchase flow</Link> if you haven&apos;t yet.
         </p>
       </div>
 
-      <Section title="What you get">
-        <ul className="list-disc list-inside space-y-1.5 text-sm" style={{ color: "hsl(var(--accent-mineral))" }}>
-          <li><code className="font-mono text-[11px]">createPaymentIntent()</code> — generates a Solana Pay URL and stores the intent in DB.</li>
-          <li><code className="font-mono text-[11px]">verifyPayment()</code> — 6-point on-chain verification before value delivery.</li>
-          <li><code className="font-mono text-[11px]">getPaymentStatus()</code> — poll endpoint for confirmation status.</li>
-          <li><code className="font-mono text-[11px]">usePaymentStatus()</code> — client hook that polls and fires <code className="font-mono text-[11px]">onConfirmed</code>.</li>
-          <li>Subscription scaffold: <code className="font-mono text-[11px]">createSubscription()</code> and <code className="font-mono text-[11px]">chargeSubscription()</code>.</li>
-          <li>Optional <code className="font-mono text-[11px]">withX402()</code> middleware for pay-per-request API gating.</li>
-          <li>Two SQL tables with RLS: <code className="font-mono text-[11px]">payments</code> and <code className="font-mono text-[11px]">subscriptions</code>.</li>
+      <Section title="1. What you received">
+        <p>
+          GitHub sent a collaborator invitation to{" "}
+          <InlineCode>Marrow-Stack/marrow-website-v1.2</InlineCode>. Accept it from your
+          GitHub notifications or email. If it has expired,{" "}
+          <Link href="/dashboard" className="underline hover:opacity-80" style={{ color: "hsl(var(--metal-foreground))" }}>re-deliver from your dashboard</Link>.
+        </p>
+        <p>
+          Once accepted, clone the repo and copy <InlineCode>lib/solana-payments.ts</InlineCode> (~500 lines)
+          into your project. Exports:
+        </p>
+        <ul className="list-disc list-inside space-y-1.5 pl-2">
+          <li><InlineCode>createPaymentRequest()</InlineCode> — generates a reference keypair and a payment URI</li>
+          <li><InlineCode>verifyPayment()</InlineCode> — 6-point on-chain verification (confirmed, recipient, amount, mint, reference, unexpired)</li>
+          <li><InlineCode>PaymentButton</InlineCode> — React component (wallet adapter required)</li>
+          <li><InlineCode>usePaymentStatus()</InlineCode> — polls for payment confirmation</li>
+          <li><InlineCode>withPaymentGate()</InlineCode> — optional x402 pay-per-request middleware</li>
+          <li>SQL migration: <InlineCode>payments</InlineCode> and <InlineCode>subscriptions</InlineCode> tables</li>
+        </ul>
+        <div
+          className="p-3 rounded-xl text-xs"
+          style={{ background: "rgba(210,153,34,0.1)", border: "1px solid rgba(210,153,34,0.2)", color: "#d29922" }}
+        >
+          <strong>Mainnet vs. devnet:</strong> The playground on the block detail page runs on devnet
+          with simulated USDC. Production use requires <InlineCode>SOLANA_CLUSTER=mainnet-beta</InlineCode>{" "}
+          and the real USDC mint (<InlineCode>EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v</InlineCode>).
+          These configs must never be mixed.
+        </div>
+      </Section>
+
+      <Section title="2. Prerequisites">
+        <ul className="list-disc list-inside space-y-1.5 pl-2">
+          <li>Next.js 14 or 15, App Router</li>
+          <li>Supabase project</li>
+          <li>A Solana treasury wallet (the public key that receives USDC)</li>
+          <li>A mainnet-beta RPC endpoint (Helius, QuickNode, or similar)</li>
+          <li>Wallet adapter (if using the <InlineCode>PaymentButton</InlineCode> component)</li>
         </ul>
       </Section>
 
-      <Section title="Install">
-        <CodeBlock language="bash" code={`npm i @solana/web3.js @solana/spl-token @solana/pay bs58 bignumber.js`} />
+      <Section title="3. Install">
+        <ol className="list-decimal list-inside space-y-2 pl-2">
+          <li>Clone the repo and copy <InlineCode>solana-payments.ts</InlineCode> into <InlineCode>lib/solana-payments.ts</InlineCode>.</li>
+          <li>Remove <InlineCode>@ts-nocheck</InlineCode> from line 1.</li>
+          <li>Install peer dependencies:</li>
+        </ol>
+        <CodeBlock language="bash" code={`npm install @solana/web3.js @solana/spl-token bs58
+# If using PaymentButton (wallet adapter):
+npm install @solana/wallet-adapter-base @solana/wallet-adapter-react \\
+    @solana/wallet-adapter-react-ui @solana/wallet-adapter-wallets`} />
       </Section>
 
-      <Section title="Environment">
+      <Section title="4. Environment">
         <EnvTable rows={[
-          { name: "NEXT_PUBLIC_SOLANA_CLUSTER",   required: true,  desc: "devnet or mainnet-beta. Controls which USDC mint address is used." },
-          { name: "SOLANA_TREASURY_ADDRESS",       required: true,  desc: "Your receiving wallet (base58). Payments go here." },
-          { name: "SOLANA_RPC_URL",                required: false, desc: "Custom RPC (Helius/QuickNode/Alchemy recommended for production). Falls back to public clusterApiUrl." },
-          { name: "NEXT_PUBLIC_SUPABASE_URL",      required: true,  desc: "Supabase project URL." },
-          { name: "SUPABASE_SERVICE_ROLE_KEY",     required: true,  desc: "Service role key. Never expose client-side." },
+          { name: "NEXT_PUBLIC_SUPABASE_URL",    required: true,  desc: "Your Supabase project URL" },
+          { name: "SUPABASE_SERVICE_ROLE_KEY",   required: true,  desc: "Service role key — server-side only" },
+          { name: "SOLANA_CLUSTER",              required: true,  default: "mainnet-beta", desc: "Must be mainnet-beta in production. Never devnet." },
+          { name: "SOLANA_RPC_URL",              required: true,  desc: "Mainnet RPC endpoint. The public endpoint is rate-limited; use Helius or QuickNode." },
+          { name: "TREASURY_WALLET_ADDRESS",     required: true,  desc: "Public key of the wallet that receives USDC payments." },
+          { name: "USDC_MINT",                   required: true,  default: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", desc: "USDC mint address on mainnet. Do not change unless you know what you are doing." },
+          { name: "PAYMENT_EXPIRY_SECONDS",      required: false, default: "600", desc: "How long a payment request is valid before expiry. Default is 10 minutes." },
         ]} />
-        <div className="mt-3 p-3 rounded-lg text-sm" style={{ background: "rgba(255,166,87,0.08)", border: "1px solid rgba(255,166,87,0.2)", color: "#ffa657" }}>
-          <strong>USDC mint addresses</strong> — verify these before going to mainnet:
-          <ul className="mt-1.5 space-y-0.5 font-mono text-[11px]">
-            <li>Devnet: <code>4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU</code></li>
-            <li>Mainnet-beta: <code>EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v</code></li>
-          </ul>
-          <p className="mt-1.5 text-[11px]">Confirm at: circle.com/en/usdc/developers</p>
-        </div>
       </Section>
 
-      <Section title="Critical: verify before delivering value">
-        <div className="p-4 rounded-xl text-sm" style={{ background: "rgba(248,81,73,0.08)", border: "1px solid rgba(248,81,73,0.2)", color: "#f85149" }}>
-          <p className="font-bold mb-2">Solana has no server-side webhooks.</p>
-          <p style={{ color: "hsl(var(--accent-mineral))" }}>
-            You must call <code className="font-mono text-[11px]">verifyPayment(reference)</code> on your server before
-            fulfilling any order. Never trust a client-sent "paid: true" flag. The <code className="font-mono text-[11px]">usePaymentStatus</code> hook's
-            <code className="font-mono text-[11px]"> onConfirmed</code> callback fires only after server verification returns OK — but your
-            product delivery logic must also guard server-side.
-          </p>
-        </div>
+      <Section title="5. Database">
+        <p>
+          Run the <InlineCode>MIGRATION</InlineCode> constant from <InlineCode>solana-payments.ts</InlineCode> in Supabase SQL Editor.
+        </p>
+        <p>Creates:</p>
+        <ul className="list-disc list-inside space-y-1.5 pl-2">
+          <li><InlineCode>payments</InlineCode> — reference key, amount, status, tx signature, idempotency guard</li>
+          <li><InlineCode>subscriptions</InlineCode> — optional recurring payment scaffold with renewal tracking</li>
+        </ul>
+        <p>RLS on both tables: service role has full access; anon is blocked.</p>
       </Section>
 
-      <Section title="Payment flow">
-        <ol className="list-decimal list-inside space-y-2 text-sm" style={{ color: "hsl(var(--accent-mineral))" }}>
-          <li>Server calls <code className="font-mono text-[11px]">createPaymentIntent(&#123; amountUsdc, label, message &#125;)</code> — generates an ephemeral reference keypair and persists a <code className="font-mono text-[11px]">pending</code> record.</li>
-          <li>Server returns the <code className="font-mono text-[11px]">solanaPayUrl</code> (a Solana Pay transfer request URL) to the client.</li>
-          <li>Client renders the URL as a QR code (for desktop) or a deep link (for mobile). The user pays with Phantom, Solflare, or any Solana Pay-compatible wallet.</li>
-          <li>Client polls <code className="font-mono text-[11px]">GET /api/solana-payments/status?reference=...</code> every 3 seconds.</li>
-          <li>When the block detects a finalized transaction for the reference key, it runs <code className="font-mono text-[11px]">verifyPayment()</code> automatically and updates the DB record to <code className="font-mono text-[11px]">confirmed</code>.</li>
-          <li>The status endpoint returns <code className="font-mono text-[11px]">&#123; status: 'confirmed', result: &#123; signature, payer, amountUsdc, confirmedAt &#125; &#125;</code>.</li>
+      <Section title="6. Wire it in">
+        <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Create a payment request (server-side):</strong></p>
+        <CodeBlock filename="app/api/payment/create/route.ts" code={`import { createPaymentRequest } from '@/lib/solana-payments'
+import { NextRequest, NextResponse } from 'next/server'
+
+export async function POST(req: NextRequest) {
+  const { amount, userId } = await req.json()
+  // amount is in USDC (e.g. 49 for $49)
+  const payment = await createPaymentRequest({
+    amount,
+    userId,
+    description: 'MarrowStack block purchase',
+  })
+  // payment.referenceKey — unique key for this payment
+  // payment.paymentUri   — Solana Pay URI for QR codes
+  // payment.expiresAt    — ISO timestamp
+  return NextResponse.json(payment)
+}`} />
+        <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Verify payment (server-side, called after buyer pays):</strong></p>
+        <CodeBlock filename="app/api/payment/verify/route.ts" code={`import { verifyPayment } from '@/lib/solana-payments'
+import { NextRequest, NextResponse } from 'next/server'
+
+export async function POST(req: NextRequest) {
+  const { paymentId, txSignature } = await req.json()
+  const result = await verifyPayment({ paymentId, txSignature })
+  // result.verified — boolean
+  // result.error    — string if verification failed
+  if (!result.verified) {
+    return NextResponse.json({ error: result.error }, { status: 422 })
+  }
+  // Mark order as paid, trigger delivery, etc.
+  return NextResponse.json({ ok: true })
+}`} />
+        <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Drop in the PaymentButton (client-side):</strong></p>
+        <CodeBlock filename="app/checkout/page.tsx" code={`'use client'
+import { PaymentButton } from '@/lib/solana-payments'
+
+export default function CheckoutPage({ paymentUri }: { paymentUri: string }) {
+  return (
+    <PaymentButton
+      paymentUri={paymentUri}
+      onSuccess={(txSig) => fetch('/api/payment/verify', {
+        method: 'POST',
+        body: JSON.stringify({ txSignature: txSig }),
+      })}
+      onError={(err) => console.error(err)}
+    />
+  )
+}`} />
+      </Section>
+
+      <Section title="7. Verify it works">
+        <ol className="list-decimal list-inside space-y-1.5 pl-2">
+          <li>
+            Call <InlineCode>createPaymentRequest(&#123; amount: 1, userId: &apos;test&apos; &#125;)</InlineCode> in a test route.
+            Confirm a row appears in the <InlineCode>payments</InlineCode> table with status <InlineCode>pending</InlineCode>.
+          </li>
+          <li>
+            Use the devnet{" "}
+            <Link href="/blocks/solana-payments" className="underline hover:opacity-80" style={{ color: "hsl(var(--metal-foreground))" }}>playground</Link>{" "}
+            to test the full payment flow before spending real USDC on mainnet.
+          </li>
+          <li>
+            On mainnet: send the exact USDC amount to the treasury address and call
+            <InlineCode>verifyPayment()</InlineCode> with the tx signature. Confirm the
+            <InlineCode>payments</InlineCode> row transitions to <InlineCode>verified</InlineCode>.
+          </li>
+          <li>
+            Attempt to verify the same tx signature a second time.
+            <InlineCode>verifyPayment()</InlineCode> must return <InlineCode>&#123; verified: false, error: &apos;Already processed&apos; &#125;</InlineCode> (idempotency guard).
+          </li>
         </ol>
       </Section>
 
-      <Section title="On-chain verification: 6 checks">
-        <div className="space-y-2 text-sm" style={{ color: "hsl(var(--accent-mineral))" }}>
+      <Section title="8. Failure modes &amp; fixes">
+        <div className="space-y-5">
           {[
-            ["1. Transaction finalized", "Uses confirmed commitment; finalized is also accepted."],
-            ["2. USDC mint correct", "The SPL token transferred must be exactly the USDC mint for the current cluster. Rejects other tokens."],
-            ["3. Amount ≥ expected", "The transferred amount must equal or exceed the intent's amount_usdc."],
-            ["4. Recipient matches", "The destination token account must be owned by SOLANA_TREASURY_ADDRESS."],
-            ["5. Reference key present", "The transaction must include the ephemeral reference public key, proving it's the correct payment."],
-            ["6. Not already credited", "The signature is checked against the idempotency_key index. A duplicate returns 409 ALREADY_CREDITED."],
-          ].map(([check, detail]) => (
-            <div key={check} className="flex gap-3">
-              <span className="shrink-0 font-semibold" style={{ color: "hsl(var(--metal-foreground))" }}>{check}</span>
-              <span>{detail}</span>
+            { error: "Transaction not found", cause: "The tx signature was queried before the transaction finalized on-chain.", fix: "Add a 2–5 second delay and retry once. Transactions on mainnet typically confirm within 1–2 slots (~800ms) but can take longer under load." },
+            { error: "Amount mismatch: expected 49.00, received 48.51", cause: "Buyer sent slightly less than the required amount (wallet fee deducted from the transfer amount).", fix: "Set the transfer amount to USDC (stable, no fee deduction). If using SOL, the tolerance band in verifyPayment() handles this — widen it in the config if needed." },
+            { error: "Wrong recipient: expected <treasury>, got <other>", cause: "Buyer sent USDC to a different address.", fix: "Ensure the UI clearly displays the treasury address. Surface the exact address as a copy field — never rely on the buyer to remember it." },
+            { error: "Mint mismatch", cause: "Buyer sent a different SPL token (not USDC).", fix: "verifyPayment() checks the mint against USDC_MINT. The block rejects non-USDC transfers. Show the USDC mint address in the payment UI." },
+            { error: "PaymentExpiredError", cause: "The payment was not completed within the PAYMENT_EXPIRY_SECONDS window.", fix: "Create a new payment request. The expiry window is configurable. For large amounts, consider increasing PAYMENT_EXPIRY_SECONDS." },
+            { error: "RPC 429 Too Many Requests", cause: "Using the public Solana RPC endpoint, which has aggressive rate limits.", fix: "Switch to a dedicated mainnet endpoint: Helius (https://helius.dev) or QuickNode. Set SOLANA_RPC_URL accordingly." },
+          ].map(({ error, cause, fix }) => (
+            <div key={error} className="space-y-1 pb-4 border-b last:border-b-0" style={{ borderColor: "hsl(var(--metal-border))" }}>
+              <p className="font-mono text-[11px]" style={{ color: "#f85149" }}>{error}</p>
+              <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Cause:</strong> {cause}</p>
+              <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Fix:</strong> {fix}</p>
             </div>
           ))}
         </div>
       </Section>
 
-      <Section title="Usage">
-        <CodeBlock language="typescript" code={`// Server — create intent
-import { createPaymentIntent } from '@/blocks/solana-payments'
-
-const intent = await createPaymentIntent({
-  amountUsdc: 49,
-  label:      'Admin Block — MarrowStack',
-  message:    'One-time purchase',
-  metadata:   { userId: session.user.id, productId: 'admin' },
-})
-
-// intent.solanaPayUrl → render QR code
-// intent.reference   → pass to client hook
-
-// Client — poll for confirmation
-import { usePaymentStatus } from '@/blocks/solana-payments'
-
-const { state, createPayment } = usePaymentStatus({
-  onConfirmed: async (result) => {
-    // result.signature, result.amountUsdc, result.payer
-    await fetch('/api/orders', {
-      method: 'POST',
-      body: JSON.stringify({ reference: intent.reference }),
-    })
-    // Your /api/orders handler calls verifyPayment() again
-    // before writing the order — defense in depth.
-  },
-})`} />
-      </Section>
-
-      <Section title="Subscriptions">
-        <div className="p-3 rounded-lg text-sm mb-3" style={{ background: "rgba(255,166,87,0.08)", border: "1px solid rgba(255,166,87,0.2)", color: "#ffa657" }}>
-          Solana has no native pull payments. This scaffold records billing cycles and generates
-          new payment requests. Users must approve each payment. There are no silent recurring debits.
-        </div>
-        <CodeBlock language="typescript" code={`import { createSubscription, chargeSubscription } from '@/blocks/solana-payments'
-
-// Create subscription (returns first payment intent)
-const { subscriptionId, firstPaymentIntent } =
-  await createSubscription(userId, {
-    planId:       'pro-monthly',
-    amountUsdc:   29,
-    intervalDays: 30,
-    label:        'Pro Plan — MarrowStack',
-  })
-
-// On billing day: generate renewal intent, send to user
-const renewalIntent = await chargeSubscription(subscriptionId)
-// Send renewalIntent.solanaPayUrl to user via email/notification`} />
-      </Section>
-
-      <Section title="x402 middleware (opt-in)">
-        <p className="text-sm mb-3" style={{ color: "hsl(var(--accent-mineral))" }}>
-          Gate an API route behind a micro-payment. The client receives 402 with a Solana Pay URL,
-          pays, then retries with a proof header. Tree-shake if unused.
-        </p>
-        <CodeBlock language="typescript" filename="middleware.ts" code={`import { withX402 } from '@/blocks/solana-payments'
-import { NextResponse } from 'next/server'
-
-const x402 = withX402({
-  amountUsdc: 0.01,
-  paths:      ['/api/ai-generate'],
-  label:      'AI generation — 1¢ USDC per call',
-})
-
-export async function middleware(req) {
-  const res = await x402(req)
-  if (res) return res          // 402 — payment required
-  return NextResponse.next()   // paid — proceed
-}`} />
-      </Section>
-
-      <Section title="Troubleshooting">
-        <div className="space-y-3 text-sm" style={{ color: "hsl(var(--accent-mineral))" }}>
-          <div>
-            <p className="font-semibold" style={{ color: "hsl(var(--metal-foreground))" }}>VALIDATION_FAILED — wrong mint</p>
-            <p>The user paid with a different SPL token. The block rejects and marks the intent <code className="font-mono text-[11px]">failed</code>. Show the user the expected USDC mint address.</p>
-          </div>
-          <div>
-            <p className="font-semibold" style={{ color: "hsl(var(--metal-foreground))" }}>findReference throws — transaction not found</p>
-            <p>The user hasn't paid yet, or the RPC node is lagging. Continue polling. If polling exceeds 10 minutes, the intent expires.</p>
-          </div>
-          <div>
-            <p className="font-semibold" style={{ color: "hsl(var(--metal-foreground))" }}>409 ALREADY_CREDITED</p>
-            <p>A duplicate verify attempt for the same signature. This is the idempotency guard working correctly. Fetch the payment status from DB instead.</p>
-          </div>
-          <div>
-            <p className="font-semibold" style={{ color: "hsl(var(--metal-foreground))" }}>RPC rate limits on devnet</p>
-            <p>Public devnet RPC has strict rate limits. Use a private RPC (Helius free tier works) by setting <code className="font-mono text-[11px]">SOLANA_RPC_URL</code>.</p>
-          </div>
-        </div>
+      <Section title="9. Security responsibilities">
+        <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>What this block guarantees:</strong></p>
+        <ul className="list-disc list-inside space-y-1.5 pl-2">
+          <li>6-point on-chain verification: confirmed finality, exact recipient, exact amount (within tolerance), correct USDC mint, unique reference key, within expiry window.</li>
+          <li>Reference keys are single-use. The <InlineCode>payments</InlineCode> table has a unique constraint on reference keys — double-payment is rejected.</li>
+          <li>Verification runs server-side. The client submits a tx signature; the server does not trust the client&apos;s claim that payment was made.</li>
+          <li>All verification happens before any value is delivered. Never deliver before <InlineCode>verifyPayment()</InlineCode> returns <InlineCode>verified: true</InlineCode>.</li>
+        </ul>
+        <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>What you must ensure:</strong></p>
+        <ul className="list-disc list-inside space-y-1.5 pl-2">
+          <li>
+            <strong>Verify payment server-side before delivering value</strong> — this is the most important rule.
+            Call <InlineCode>verifyPayment()</InlineCode> in your API route, not on the client.
+          </li>
+          <li>Set <InlineCode>SOLANA_CLUSTER=mainnet-beta</InlineCode>. Never use devnet config in production.</li>
+          <li>Keep <InlineCode>TREASURY_WALLET_ADDRESS</InlineCode> and <InlineCode>SUPABASE_SERVICE_ROLE_KEY</InlineCode> server-side only.</li>
+          <li>Use a dedicated RPC endpoint in production. Public endpoints are rate-limited and unreliable under load.</li>
+          <li>Display the USDC mint address to users so they can verify they are sending the correct token.</li>
+        </ul>
       </Section>
     </div>
-  );
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-3">
-      <h2 className="text-xl font-bold" style={{ color: "hsl(var(--metal-foreground))" }}>{title}</h2>
-      {children}
-    </div>
-  );
+  )
 }

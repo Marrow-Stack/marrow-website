@@ -1,8 +1,9 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Boxes, BookOpen, Search, Sun, Moon, type LucideIcon } from "lucide-react";
+import { Boxes, BookOpen, Search, Sun, Moon, LayoutDashboard, LogIn, type LucideIcon } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -17,6 +18,44 @@ const LEFT_ITEMS: DockItem[] = [
   { name: "Blocks", icon: Boxes, href: "/blocks" },
   { name: "Docs", icon: BookOpen, href: "/docs" },
 ];
+
+// Internal Sub-component: Auth button (sign-in or dashboard)
+function AuthButton() {
+  const { data: session, status } = useSession()
+  if (status === "loading") return null
+
+  if (session) {
+    return (
+      <Link href="/dashboard" title="Dashboard">
+        <motion.div
+          className="group relative flex aspect-square h-10 w-10 items-center justify-center rounded-full bg-zinc-200/50 dark:bg-zinc-900/40 border border-black/5 dark:border-white/5 transition-colors hover:bg-zinc-300/50 dark:hover:bg-zinc-800/80 cursor-pointer"
+          whileTap={{ scale: 0.95 }}
+          transition={{ type: "spring", stiffness: 500, damping: 15 }}
+        >
+          <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 rounded-md border border-black/10 dark:border-white/10 bg-white/90 dark:bg-black/80 backdrop-blur-md px-2 py-1 text-[10px] font-medium text-black dark:text-white opacity-0 transition-opacity group-hover:opacity-100 whitespace-nowrap pointer-events-none">
+            Dashboard
+          </span>
+          <LayoutDashboard className="h-full w-full p-2.5 text-zinc-600 dark:text-zinc-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
+        </motion.div>
+      </Link>
+    )
+  }
+
+  return (
+    <Link href="/auth/signin" title="Sign in">
+      <motion.div
+        className="group relative flex items-center gap-1.5 h-10 px-3 rounded-full bg-zinc-200/50 dark:bg-zinc-900/40 border border-black/5 dark:border-white/5 transition-colors hover:bg-zinc-300/50 dark:hover:bg-zinc-800/80 cursor-pointer"
+        whileTap={{ scale: 0.95 }}
+        transition={{ type: "spring", stiffness: 500, damping: 15 }}
+      >
+        <LogIn className="h-4 w-4 text-zinc-600 dark:text-zinc-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
+        <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400 group-hover:text-black dark:group-hover:text-white transition-colors hidden sm:block">
+          Sign in
+        </span>
+      </motion.div>
+    </Link>
+  )
+}
 
 export const RefractiveDock = () => {
   const { theme: selectedTheme, setTheme, resolvedTheme } = useTheme();
@@ -75,6 +114,10 @@ export const RefractiveDock = () => {
             </div>
           )}
         </div>
+
+        <div className="h-6 w-[1px] bg-black/10 dark:bg-white/10 mx-1" />
+
+        <AuthButton />
 
         <div className="h-6 w-[1px] bg-black/10 dark:bg-white/10 mx-1" />
 

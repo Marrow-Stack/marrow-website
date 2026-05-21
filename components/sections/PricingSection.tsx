@@ -128,7 +128,7 @@ export function PricingSection() {
                 <motion.button
                   whileTap={{ y: 3 }}
                   transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                  className="w-full py-2.5 rounded-xl text-sm font-bold transition-all"
+                  className="w-full py-2.5 rounded-xl text-sm font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-metal-shine focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   style={
                     tier.highlight
                       ? {

@@ -19,6 +19,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/docs/blocks/solana-payments`,    lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE}/docs/security`,                  lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/docs/faq`,                       lastModified: now, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${BASE}/docs/after-you-buy`,             lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${BASE}/privacy`,                        lastModified: now, changeFrequency: "yearly",  priority: 0.3 },
+    { url: `${BASE}/terms`,                          lastModified: now, changeFrequency: "yearly",  priority: 0.3 },
+    { url: `${BASE}/changelog`,                      lastModified: now, changeFrequency: "monthly", priority: 0.6 },
   ];
 
   const blockRoutes: MetadataRoute.Sitemap = BLOCKS.map((block) => ({

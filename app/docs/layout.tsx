@@ -13,6 +13,7 @@ type NavItem   = NavLeaf | NavGroup;
 
 const NAV: NavItem[] = [
   { label: "Overview",          href: "/docs" },
+  { label: "After You Buy",     href: "/docs/after-you-buy" },
   { label: "Getting Started",   href: "/docs/getting-started" },
   {
     label: "Blocks",

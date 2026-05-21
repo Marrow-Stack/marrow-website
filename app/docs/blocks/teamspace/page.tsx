@@ -1,153 +1,153 @@
-import React from "react";
-import type { Metadata } from "next";
-import { CodeBlock, EnvTable } from "@/components/docs/CodeBlock";
+import React from "react"
+import type { Metadata } from "next"
+import { CodeBlock, EnvTable, InlineCode } from "@/components/docs/CodeBlock"
+import Link from "next/link"
 
 export const metadata: Metadata = {
-  title: "Team Workspace — MarrowStack Docs",
-  description: "Role hierarchy, invite flows, permission matrix, and ORM-agnostic adapter pattern for Next.js + Supabase.",
-};
-
-export default function TeamspaceDocsPage() {
-  return (
-    <div className="space-y-10">
-      <div>
-        <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "hsl(var(--accent-mineral))" }}>
-          Web2
-        </p>
-        <h1 className="text-3xl font-black text-reveal-light mb-3">Team Workspace</h1>
-        <p className="text-sm leading-relaxed" style={{ color: "hsl(var(--accent-mineral))" }}>
-          Multi-tenant team management with a four-level role hierarchy, invite flows with token expiry,
-          a composable permission matrix, and an ORM-agnostic adapter pattern so you can swap Supabase
-          for Prisma, Drizzle, or Kysely without changing the block's API.
-        </p>
-      </div>
-
-      <Section title="What you get">
-        <ul className="list-disc list-inside space-y-1.5 text-sm" style={{ color: "hsl(var(--accent-mineral))" }}>
-          <li><code className="font-mono text-[11px]">createTeam(ownerId, name)</code> — creates team and makes the owner an <code className="font-mono text-[11px]">owner</code>-role member.</li>
-          <li><code className="font-mono text-[11px]">inviteMember(teamId, email, role, invitedBy)</code> — generates an invite token, inserts into <code className="font-mono text-[11px]">team_invites</code>, returns the token for email delivery.</li>
-          <li><code className="font-mono text-[11px]">acceptInvite(token, userId)</code> — validates token, checks expiry, promotes pending to active member.</li>
-          <li><code className="font-mono text-[11px]">removeMember(teamId, userId, actorId)</code> — enforces role hierarchy (cannot remove someone of equal or higher role).</li>
-          <li><code className="font-mono text-[11px]">changeRole(teamId, userId, newRole, actorId)</code> — role promotion/demotion with hierarchy guard.</li>
-          <li><code className="font-mono text-[11px]">can(member, action)</code> — permission check against the action matrix. Returns boolean.</li>
-          <li><code className="font-mono text-[11px]">requirePermission(member, action)</code> — throws 403 if <code className="font-mono text-[11px]">can()</code> returns false.</li>
-          <li>Four SQL tables: <code className="font-mono text-[11px]">teams</code>, <code className="font-mono text-[11px]">team_members</code>, <code className="font-mono text-[11px]">team_invites</code>, <code className="font-mono text-[11px]">team_audit_log</code>, all with RLS.</li>
-        </ul>
-      </Section>
-
-      <Section title="Role hierarchy">
-        <div className="rounded-xl overflow-hidden border text-[12.5px]" style={{ borderColor: "hsl(var(--metal-border))" }}>
-          <table className="w-full">
-            <thead>
-              <tr style={{ background: "var(--metal-gradient)", borderBottom: "1px solid hsl(var(--metal-border))" }}>
-                {["Role", "Invite", "Remove members", "Manage billing", "Delete team"].map(h => (
-                  <th key={h} className="text-left px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider" style={{ color: "hsl(var(--metal-shine))" }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="text-sm" style={{ color: "hsl(var(--accent-mineral))" }}>
-              {[
-                ["owner",  "✓", "✓ (all)", "✓", "✓"],
-                ["admin",  "✓", "✓ (below admin)", "✓", "✗"],
-                ["member", "✗", "✗", "✗", "✗"],
-                ["viewer", "✗", "✗", "✗", "✗"],
-              ].map(([role, ...cols], i) => (
-                <tr key={role} style={{ background: i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.01)", borderBottom: i < 3 ? "1px solid hsl(var(--metal-border))" : "none" }}>
-                  <td className="px-4 py-2.5 font-mono font-semibold" style={{ color: "#79c0ff" }}>{role}</td>
-                  {cols.map((c, j) => <td key={j} className="px-4 py-2.5">{c}</td>)}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Section>
-
-      <Section title="Install">
-        <CodeBlock language="bash" code={`npm i @supabase/supabase-js next-auth`} />
-      </Section>
-
-      <Section title="Environment">
-        <EnvTable rows={[
-          { name: "NEXT_PUBLIC_SUPABASE_URL",  required: true,  desc: "Supabase project URL." },
-          { name: "SUPABASE_SERVICE_ROLE_KEY", required: true,  desc: "Service role key. Never expose client-side." },
-          { name: "INVITE_TOKEN_TTL_HOURS",    required: false, default: "72", desc: "How long invite tokens remain valid." },
-        ]} />
-      </Section>
-
-      <Section title="Usage">
-        <CodeBlock language="typescript" code={`import {
-  createTeam,
-  inviteMember,
-  acceptInvite,
-  removeMember,
-  changeRole,
-  can,
-  requirePermission,
-  getTeamMember,
-} from '@/blocks/teamspace'
-
-// Create a team
-const team = await createTeam(session.user.id, 'Acme Corp')
-
-// Invite someone
-const { token } = await inviteMember(
-  team.id,
-  'alice@acme.com',
-  'member',
-  session.user.id,
-)
-// Send token via your email transport
-
-// Accept invite (called from accept-invite API route)
-await acceptInvite(token, newUser.id)
-
-// Permission check
-const actor = await getTeamMember(teamId, session.user.id)
-requirePermission(actor, 'manage:billing')  // throws 403 if not allowed`} />
-      </Section>
-
-      <Section title="ORM adapter">
-        <p className="text-sm mb-3" style={{ color: "hsl(var(--accent-mineral))" }}>
-          The block's database calls go through an adapter interface. The default implementation uses the
-          Supabase service role client. To swap it for Prisma or Drizzle, implement the <code className="font-mono text-[11px]">TeamAdapter</code> interface
-          and pass it to <code className="font-mono text-[11px]">configureTeamspace(adapter)</code> at startup.
-        </p>
-        <CodeBlock language="typescript" code={`import { configureTeamspace } from '@/blocks/teamspace'
-import { prisma }               from '@/lib/prisma'
-
-configureTeamspace({
-  async getTeam(id)         { return prisma.team.findUnique({ where: { id } }) },
-  async createTeam(data)    { return prisma.team.create({ data }) },
-  async getMember(tid, uid) { return prisma.teamMember.findUnique({ where: { teamId_userId: { teamId: tid, userId: uid } } }) },
-  // ... implement remaining adapter methods
-})`} />
-      </Section>
-
-      <Section title="Troubleshooting">
-        <div className="space-y-3 text-sm" style={{ color: "hsl(var(--accent-mineral))" }}>
-          <div>
-            <p className="font-semibold" style={{ color: "hsl(var(--metal-foreground))" }}>403 on removeMember for an admin</p>
-            <p>Admins cannot remove other admins or owners. Promote the actor to <code className="font-mono text-[11px]">owner</code> first, or demote the target below <code className="font-mono text-[11px]">admin</code>.</p>
-          </div>
-          <div>
-            <p className="font-semibold" style={{ color: "hsl(var(--metal-foreground))" }}>Invite token expired</p>
-            <p><code className="font-mono text-[11px]">INVITE_TOKEN_TTL_HOURS</code> defaults to 72. Tokens past their <code className="font-mono text-[11px]">expires_at</code> return <code className="font-mono text-[11px]">INVITE_EXPIRED 410</code>. Re-invite the user to generate a fresh token.</p>
-          </div>
-          <div>
-            <p className="font-semibold" style={{ color: "hsl(var(--metal-foreground))" }}>Duplicate team member error</p>
-            <p>The <code className="font-mono text-[11px]">team_members</code> table has a unique constraint on <code className="font-mono text-[11px]">(team_id, user_id)</code>. Check for an existing membership before calling <code className="font-mono text-[11px]">acceptInvite</code>.</p>
-          </div>
-        </div>
-      </Section>
-    </div>
-  );
+  title: "Team Workspace — Integration Guide — MarrowStack",
+  description: "Post-purchase integration walkthrough for the MarrowStack Team Workspace block: RBAC, invite flows, permission matrix, ORM-agnostic adapter.",
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="space-y-3">
+    <section className="space-y-4">
       <h2 className="text-xl font-bold" style={{ color: "hsl(var(--metal-foreground))" }}>{title}</h2>
-      {children}
+      <div className="space-y-3 text-sm leading-relaxed" style={{ color: "hsl(var(--accent-mineral))" }}>
+        {children}
+      </div>
+    </section>
+  )
+}
+
+export default function TeamspaceDocsPage() {
+  return (
+    <div className="space-y-12">
+      <div>
+        <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "hsl(var(--accent-mineral))" }}>
+          Integration guide
+        </p>
+        <h1 className="text-3xl font-black text-reveal-light mb-3">Team Workspace</h1>
+        <p className="text-sm leading-relaxed" style={{ color: "hsl(var(--accent-mineral))" }}>
+          Multi-tenant workspaces: role hierarchy (owner/admin/member/viewer), invite flows
+          with expiring tokens, a composable permission matrix, and an ORM-agnostic adapter
+          pattern that works with Prisma, Drizzle, or raw Supabase.
+        </p>
+        <p className="text-xs mt-3" style={{ color: "hsl(var(--metal-shine))" }}>
+          <Link href="/docs/after-you-buy" className="underline hover:opacity-80">Read the universal post-purchase flow</Link> if you haven&apos;t yet.
+        </p>
+      </div>
+
+      <Section title="1. What you received">
+        <p>
+          GitHub sent a collaborator invitation to{" "}
+          <InlineCode>Marrow-Stack/marrow-website-v1.2</InlineCode>. Accept it from your
+          GitHub notifications or email. If it has expired,{" "}
+          <Link href="/dashboard" className="underline hover:opacity-80" style={{ color: "hsl(var(--metal-foreground))" }}>re-deliver from your dashboard</Link>.
+        </p>
+        <p>
+          Once accepted, clone the repo and copy <InlineCode>lib/teamspace.ts</InlineCode> (~440 lines)
+          into your project. The SQL migration is embedded in the file.
+          The block exports typed server-side functions; mount them in your own API routes.
+        </p>
+      </Section>
+
+      <Section title="2. Prerequisites">
+        <ul className="list-disc list-inside space-y-1.5 pl-2">
+          <li>Next.js 14 or 15, App Router</li>
+          <li>Supabase project (uses the same profiles table as the Auth block, or any users table)</li>
+          <li>Auth session already implemented (to identify the acting user)</li>
+        </ul>
+      </Section>
+
+      <Section title="3. Install">
+        <ol className="list-decimal list-inside space-y-2 pl-2">
+          <li>Clone the delivery repo and copy <InlineCode>teamspace.ts</InlineCode> into <InlineCode>lib/teamspace.ts</InlineCode>.</li>
+          <li>Install peer dependencies:</li>
+        </ol>
+        <CodeBlock language="bash" code={`npm install @supabase/supabase-js zod`} />
+      </Section>
+
+      <Section title="4. Environment">
+        <EnvTable rows={[
+          { name: "NEXT_PUBLIC_SUPABASE_URL",  required: true, desc: "Your Supabase project URL" },
+          { name: "SUPABASE_SERVICE_ROLE_KEY", required: true, desc: "Service role key — server-side only" },
+        ]} />
+      </Section>
+
+      <Section title="5. Database">
+        <p>
+          Run the <InlineCode>MIGRATION</InlineCode> constant from <InlineCode>teamspace.ts</InlineCode> in Supabase SQL Editor.
+          Creates: <InlineCode>workspaces</InlineCode>, <InlineCode>members</InlineCode>,
+          <InlineCode>invites</InlineCode> tables with RLS. Invite tokens expire after 48 hours (configurable in the file).
+        </p>
+      </Section>
+
+      <Section title="6. Wire it in">
+        <CodeBlock filename="app/api/workspace/invite/route.ts" code={`import { createInvite, acceptInvite } from '@/lib/teamspace'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
+import { NextRequest, NextResponse } from 'next/server'
+
+// POST /api/workspace/invite  — actor must be owner or admin
+export async function POST(req: NextRequest) {
+  const session = await getServerSession(authOptions)
+  if (!session?.user?.id) return new NextResponse('Unauthorized', { status: 401 })
+  const { workspaceId, email, role } = await req.json()
+  const invite = await createInvite({ workspaceId, actorId: session.user.id, email, role })
+  return NextResponse.json(invite)
+}
+
+// PATCH /api/workspace/invite  — called with the invite token from the email link
+export async function PATCH(req: NextRequest) {
+  const session = await getServerSession(authOptions)
+  if (!session?.user?.id) return new NextResponse('Unauthorized', { status: 401 })
+  const { token } = await req.json()
+  await acceptInvite({ token, userId: session.user.id })
+  return NextResponse.json({ ok: true })
+}`} />
+      </Section>
+
+      <Section title="7. Verify it works">
+        <ol className="list-decimal list-inside space-y-1.5 pl-2">
+          <li>Create a workspace: <InlineCode>createWorkspace(&#123; name: &apos;test&apos;, ownerId: userId &#125;)</InlineCode>. Confirm a row appears in <InlineCode>workspaces</InlineCode>.</li>
+          <li>Invite a user: <InlineCode>createInvite(&#123; workspaceId, actorId, email, role: &apos;member&apos; &#125;)</InlineCode>. Confirm an <InlineCode>invites</InlineCode> row and an invite email.</li>
+          <li>Accept the invite with the token. Confirm the user appears in <InlineCode>members</InlineCode>.</li>
+          <li>Check a permission: <InlineCode>can(memberId, workspaceId, &apos;invite_member&apos;)</InlineCode> — must return <InlineCode>true</InlineCode> for admin/owner and <InlineCode>false</InlineCode> for viewer.</li>
+        </ol>
+      </Section>
+
+      <Section title="8. Failure modes &amp; fixes">
+        <div className="space-y-5">
+          {[
+            { error: "InviteExpiredError", cause: "The invite token is older than the configured TTL (48 hours by default).", fix: "Re-send the invite. The TTL is INVITE_TTL_HOURS at the top of teamspace.ts — adjust if needed." },
+            { error: "PermissionDeniedError: insufficient role", cause: "The acting user's role does not have the required permission in the PERMISSION_MATRIX.", fix: "Check the acting user's role in the members table. Adjust the PERMISSION_MATRIX in teamspace.ts if your app needs different permissions." },
+            { error: "WorkspaceNotFoundError", cause: "The workspace ID is wrong, or the workspace was deleted.", fix: "Verify the workspace ID. Confirm the workspaces row exists in Supabase." },
+            { error: "relation 'members' does not exist", cause: "The migration has not been run.", fix: "Run the MIGRATION constant in Supabase SQL Editor." },
+          ].map(({ error, cause, fix }) => (
+            <div key={error} className="space-y-1 pb-4 border-b last:border-b-0" style={{ borderColor: "hsl(var(--metal-border))" }}>
+              <p className="font-mono text-[11px]" style={{ color: "#f85149" }}>{error}</p>
+              <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Cause:</strong> {cause}</p>
+              <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Fix:</strong> {fix}</p>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="9. Security responsibilities">
+        <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>What this block handles:</strong></p>
+        <ul className="list-disc list-inside space-y-1.5 pl-2">
+          <li>All permission checks go through the typed <InlineCode>can()</InlineCode> function — no ad-hoc role comparisons.</li>
+          <li>Invite tokens are single-use, 48-hour TTL, cryptographically random.</li>
+          <li>Role changes require <InlineCode>manage_members</InlineCode> permission (owner/admin only).</li>
+          <li>RLS blocks client-side access to all workspace tables.</li>
+        </ul>
+        <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>What you must ensure:</strong></p>
+        <ul className="list-disc list-inside space-y-1.5 pl-2">
+          <li>Call <InlineCode>can()</InlineCode> in every API route before performing privileged workspace operations.</li>
+          <li>Verify the acting user is authenticated before any workspace API call.</li>
+          <li>Deliver invite tokens over email only, never via URL query params visible in logs.</li>
+        </ul>
+      </Section>
     </div>
-  );
+  )
 }

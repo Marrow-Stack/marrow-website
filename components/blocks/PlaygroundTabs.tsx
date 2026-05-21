@@ -2,13 +2,15 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Monitor, Code2, BookOpen } from "lucide-react";
+import { Monitor, Code2, BookOpen, ExternalLink, Lock } from "lucide-react";
 import { CodeViewer } from "./CodeViewer";
 import type { MarrowBlock } from "@/lib/blocks-data";
 
 interface PlaygroundTabsProps {
   block: MarrowBlock;
   PreviewComponent: React.ComponentType;
+  hasPurchased?: boolean;
+  repoUrl?: string | null;
 }
 
 const TABS = [
@@ -19,7 +21,7 @@ const TABS = [
 
 type TabId = typeof TABS[number]["id"];
 
-export function PlaygroundTabs({ block, PreviewComponent }: PlaygroundTabsProps) {
+export function PlaygroundTabs({ block, PreviewComponent, hasPurchased, repoUrl }: PlaygroundTabsProps) {
   const [active, setActive] = useState<TabId>("preview");
 
   return (
@@ -104,17 +106,57 @@ export function PlaygroundTabs({ block, PreviewComponent }: PlaygroundTabsProps)
               transition={{ duration: 0.2 }}
               className="p-4"
             >
-              <div className="mb-3 flex items-center gap-2">
-                <span
-                  className="text-[11px] px-2 py-1 rounded"
-                  style={{
-                    background: "rgba(255,123,114,0.1)",
-                    border: "1px solid rgba(255,123,114,0.2)",
-                    color: "#ff7b72",
-                  }}
-                >
-                  teaser — purchase for full source
-                </span>
+              <div className="mb-3 flex items-center gap-2 flex-wrap">
+                {hasPurchased ? (
+                  <>
+                    <span
+                      className="text-[11px] px-2 py-1 rounded"
+                      style={{
+                        background: "rgba(63,185,80,0.1)",
+                        border: "1px solid rgba(63,185,80,0.2)",
+                        color: "#3fb950",
+                      }}
+                    >
+                      source unlocked
+                    </span>
+                    {repoUrl && (
+                      <a
+                        href={repoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-[11px] px-2 py-1 rounded transition-opacity hover:opacity-70"
+                        style={{
+                          background: "rgba(121,192,255,0.08)",
+                          border: "1px solid rgba(121,192,255,0.2)",
+                          color: "#79c0ff",
+                        }}
+                      >
+                        <ExternalLink size={10} />
+                        Open full source on GitHub
+                      </a>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <span
+                      className="text-[11px] px-2 py-1 rounded"
+                      style={{
+                        background: "rgba(255,123,114,0.1)",
+                        border: "1px solid rgba(255,123,114,0.2)",
+                        color: "#ff7b72",
+                      }}
+                    >
+                      teaser — purchase for full source
+                    </span>
+                    <span
+                      className="inline-flex items-center gap-1 text-[11px]"
+                      style={{ color: "#6e7681" }}
+                    >
+                      <Lock size={10} />
+                      full source locked
+                    </span>
+                  </>
+                )}
               </div>
               <CodeViewer
                 code={block.teaserCode}

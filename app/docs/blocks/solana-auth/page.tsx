@@ -1,172 +1,226 @@
-import React from "react";
-import type { Metadata } from "next";
-import { CodeBlock, EnvTable } from "@/components/docs/CodeBlock";
+import React from "react"
+import type { Metadata } from "next"
+import { CodeBlock, EnvTable, InlineCode } from "@/components/docs/CodeBlock"
+import Link from "next/link"
 
 export const metadata: Metadata = {
-  title: "Solana Auth (SIWS) — MarrowStack Docs",
-  description: "Sign-In-With-Solana: Ed25519 signature verification, single-use nonces, domain binding, and wallet↔account linking for Next.js + Supabase.",
-};
-
-export default function SolanaAuthDocsPage() {
-  return (
-    <div className="space-y-10">
-      <div>
-        <p className="text-xs font-bold uppercase tracking-widest mb-2 text-emerald-500">
-          Solana
-        </p>
-        <h1 className="text-3xl font-black text-reveal-light mb-3">Solana Auth (SIWS)</h1>
-        <p className="text-sm leading-relaxed" style={{ color: "hsl(var(--accent-mineral))" }}>
-          Sign-In-With-Solana with server-side Ed25519 verification, single-use nonces, domain binding,
-          RBAC, and wallet↔email account linking.
-        </p>
-      </div>
-
-      <Section title="What you get">
-        <ul className="list-disc list-inside space-y-1.5 text-sm" style={{ color: "hsl(var(--accent-mineral))" }}>
-          <li>A <code className="font-mono text-[11px]">useSolanaAuth()</code> React hook that orchestrates connect → sign → verify in one call.</li>
-          <li>A <code className="font-mono text-[11px]">SignInWithSolanaButton</code> drop-in component for Phantom, Solflare, and Backpack.</li>
-          <li>Two API route handlers: <code className="font-mono text-[11px]">/api/solana-auth/nonce</code> and <code className="font-mono text-[11px]">/api/solana-auth/verify</code>.</li>
-          <li>Two SQL tables: <code className="font-mono text-[11px]">auth_nonces</code> (challenges) and <code className="font-mono text-[11px]">wallets</code> (account links), both with RLS.</li>
-          <li>A <code className="font-mono text-[11px]">WalletProviders</code> context wrapper for the wallet-adapter connection layer.</li>
-          <li>A <code className="font-mono text-[11px]">buildSolanaCredentialsProvider()</code> stub to slot the wallet into an existing NextAuth config.</li>
-        </ul>
-      </Section>
-
-      <Section title="Install">
-        <ol className="list-decimal list-inside space-y-2 text-sm" style={{ color: "hsl(var(--accent-mineral))" }}>
-          <li>Copy <code className="font-mono text-[11px]">blocks/solana-auth/solana-auth.tsx</code> into your project.</li>
-          <li>Run the SQL migration (MIGRATION constant at the top of the file) in Supabase SQL Editor.</li>
-          <li>Install dependencies.</li>
-          <li>Set env vars.</li>
-          <li>Mount <code className="font-mono text-[11px]">WalletProviders</code> in <code className="font-mono text-[11px]">app/layout.tsx</code>.</li>
-          <li>Mount the two API routes.</li>
-          <li>Drop <code className="font-mono text-[11px]">SignInWithSolanaButton</code> wherever sign-in lives.</li>
-        </ol>
-        <CodeBlock language="bash" code={`npm i @solana/web3.js bs58 tweetnacl
-npm i @solana/wallet-adapter-base @solana/wallet-adapter-react \\
-    @solana/wallet-adapter-react-ui @solana/wallet-adapter-wallets`} />
-      </Section>
-
-      <Section title="Environment">
-        <EnvTable rows={[
-          { name: "NEXT_PUBLIC_SOLANA_CLUSTER",    required: true,  desc: "devnet or mainnet-beta" },
-          { name: "SOLANA_AUTH_DOMAIN",             required: true,  desc: "Domain bound into every SIWS message. Server rejects any message with a different domain." },
-          { name: "SOLANA_AUTH_NONCE_TTL_SECONDS",  required: false, default: "300", desc: "TTL for issued nonces. Do not set below 60." },
-          { name: "NEXT_PUBLIC_APP_URL",            required: true,  desc: "Full origin URL; used as the URI field in the SIWS message." },
-          { name: "NEXT_PUBLIC_SUPABASE_URL",       required: true,  desc: "Your Supabase project URL." },
-          { name: "SUPABASE_SERVICE_ROLE_KEY",      required: true,  desc: "Service role key. Never expose to the client." },
-        ]} />
-      </Section>
-
-      <Section title="Authentication flow">
-        <ol className="list-decimal list-inside space-y-2 text-sm" style={{ color: "hsl(var(--accent-mineral))" }}>
-          <li>Client calls <code className="font-mono text-[11px]">POST /api/solana-auth/nonce</code> with the wallet address → server issues a random 32-char hex nonce, stored in <code className="font-mono text-[11px]">auth_nonces</code> with <code className="font-mono text-[11px]">expires_at</code> and <code className="font-mono text-[11px]">consumed_at = null</code>.</li>
-          <li>Client builds a standards-compliant SIWS message embedding the nonce, domain, URI, chain ID, and timestamp.</li>
-          <li>User signs the message in their wallet (SIWS standard or <code className="font-mono text-[11px]">signMessage</code> fallback).</li>
-          <li>Client sends address + message + base58 signature to <code className="font-mono text-[11px]">POST /api/solana-auth/verify</code>.</li>
-          <li>Server runs all checks (see Security Guarantees below) and on success mints a session. The wallet is linked to the user's account in the <code className="font-mono text-[11px]">wallets</code> table.</li>
-        </ol>
-      </Section>
-
-      <Section title="Wiring into existing NextAuth">
-        <CodeBlock language="typescript" filename="app/api/auth/[...nextauth]/route.ts" code={`import { authOptions }                  from '@/blocks/auth'
-import { buildSolanaCredentialsProvider } from '@/blocks/solana-auth'
-import NextAuth                           from 'next-auth'
-
-const handler = NextAuth({
-  ...authOptions,
-  providers: [
-    ...authOptions.providers,
-    buildSolanaCredentialsProvider(),
-  ],
-})
-
-export { handler as GET, handler as POST }`} />
-      </Section>
-
-      <Section title="Drop-in usage">
-        <CodeBlock language="tsx" code={`// app/layout.tsx
-import { WalletProviders } from '@/blocks/solana-auth'
-
-export default function RootLayout({ children }) {
-  return (
-    <html>
-      <body>
-        <WalletProviders>{children}</WalletProviders>
-      </body>
-    </html>
-  )
-}
-
-// app/signin/page.tsx
-import { SignInWithSolanaButton } from '@/blocks/solana-auth'
-import { useRouter }              from 'next/navigation'
-
-export default function SignInPage() {
-  const router = useRouter()
-  return (
-    <SignInWithSolanaButton
-      onSuccess={(session) => router.push('/dashboard')}
-      onError={(err) => console.error(err.message)}
-    />
-  )
-}`} />
-      </Section>
-
-      <Section title="Security guarantees">
-        <div className="space-y-3 text-sm" style={{ color: "hsl(var(--accent-mineral))" }}>
-          <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Signature verification is server-side only.</strong> The block never trusts a client claim that verification succeeded.</p>
-          <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Nonces are single-use.</strong> The <code className="font-mono text-[11px]">consumed_at</code> column is set atomically via an UPDATE with a WHERE clause that checks <code className="font-mono text-[11px]">consumed_at IS NULL</code>. A second verify attempt with the same nonce returns 409.</p>
-          <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Domain binding.</strong> The server checks the <code className="font-mono text-[11px]">domain</code> field in the parsed SIWS message against <code className="font-mono text-[11px]">SOLANA_AUTH_DOMAIN</code>. A mismatch returns 403. This prevents a phishing site from tricking a user into signing a message for your domain.</p>
-          <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Chain ID binding.</strong> The cluster (<code className="font-mono text-[11px]">devnet</code> / <code className="font-mono text-[11px]">mainnet</code>) is checked. A signature produced on devnet cannot be replayed on mainnet.</p>
-          <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Timestamp window.</strong> Messages older than <code className="font-mono text-[11px]">SOLANA_AUTH_NONCE_TTL_SECONDS</code> are rejected even if the nonce is valid. This limits the window for stolen-signature attacks.</p>
-          <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>No PII in logs.</strong> The block logs error codes, not user addresses or session data.</p>
-          <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Buyer responsibility.</strong> You must serve the app over HTTPS. You must not weaken the nonce TTL below 60 seconds. You must not expose <code className="font-mono text-[11px]">SUPABASE_SERVICE_ROLE_KEY</code> to the client.</p>
-        </div>
-      </Section>
-
-      <Section title="Edge cases">
-        <div className="space-y-2.5 text-sm" style={{ color: "hsl(var(--accent-mineral))" }}>
-          <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Wallet without SIWS support.</strong> The hook checks for the <code className="font-mono text-[11px]">solanaSignIn</code> method on the adapter and falls back to <code className="font-mono text-[11px]">signMessage</code> automatically. The fallback is slightly less secure (no binding to the wallet's canonical identity) but is fully supported by all major wallets.</p>
-          <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Wallet already linked to another account.</strong> <code className="font-mono text-[11px]">linkWalletToUser</code> returns <code className="font-mono text-[11px]">WALLET_CONFLICT 409</code>. The error message does not leak the other account's identifier.</p>
-          <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Clock skew.</strong> If the user's clock is more than <code className="font-mono text-[11px]">SOLANA_AUTH_NONCE_TTL_SECONDS</code> behind the server, the <code className="font-mono text-[11px]">issuedAt</code> check returns 401. Prompt the user to sync their clock.</p>
-          <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>User connects but rejects signing.</strong> The hook catches the rejection and sets <code className="font-mono text-[11px]">state.status = 'error'</code> with a descriptive message. No nonce is consumed; the user can retry.</p>
-        </div>
-      </Section>
-
-      <Section title="Troubleshooting">
-        <div className="space-y-3 text-sm" style={{ color: "hsl(var(--accent-mineral))" }}>
-          <div>
-            <p className="font-semibold" style={{ color: "hsl(var(--metal-foreground))" }}>403 DOMAIN_MISMATCH</p>
-            <p>The domain in the SIWS message does not match <code className="font-mono text-[11px]">SOLANA_AUTH_DOMAIN</code>. Ensure the env var is set to <em>exactly</em> the host (e.g. <code className="font-mono text-[11px]">app.example.com</code>, not <code className="font-mono text-[11px]">https://app.example.com</code>).</p>
-          </div>
-          <div>
-            <p className="font-semibold" style={{ color: "hsl(var(--metal-foreground))" }}>409 REPLAY</p>
-            <p>The nonce was already consumed. This is expected for repeated verify attempts. It should not occur in normal usage — if it does, check for client-side double-submit bugs.</p>
-          </div>
-          <div>
-            <p className="font-semibold" style={{ color: "hsl(var(--metal-foreground))" }}>401 INVALID_SIGNATURE</p>
-            <p>Ed25519 verification failed. Ensure the client is encoding the signature as base58 before sending. Check that the message string is identical on both sides (no extra whitespace or encoding differences).</p>
-          </div>
-          <div>
-            <p className="font-semibold" style={{ color: "hsl(var(--metal-foreground))" }}>Nonce not found in DB</p>
-            <p>The nonce endpoint must be called before the verify endpoint. If using Supabase's connection pooler, ensure the nonce INSERT and the verify UPDATE land on the same primary.</p>
-          </div>
-          <div>
-            <p className="font-semibold" style={{ color: "hsl(var(--metal-foreground))" }}>WalletProviders causes SSR errors</p>
-            <p>Wrap it in <code className="font-mono text-[11px]">dynamic(() =&gt; import('./WalletWrapper'), {'{ ssr: false }'})</code> if your layout is server-rendered and the wallet adapter causes hydration issues.</p>
-          </div>
-        </div>
-      </Section>
-    </div>
-  );
+  title: "Solana Auth (SIWS) — Integration Guide — MarrowStack",
+  description: "Post-purchase integration walkthrough for the MarrowStack Solana Auth block: Sign-In-With-Solana, Ed25519 verification, single-use nonces, domain binding, wallet↔account linking.",
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="space-y-3">
+    <section className="space-y-4">
       <h2 className="text-xl font-bold" style={{ color: "hsl(var(--metal-foreground))" }}>{title}</h2>
-      {children}
+      <div className="space-y-3 text-sm leading-relaxed" style={{ color: "hsl(var(--accent-mineral))" }}>
+        {children}
+      </div>
+    </section>
+  )
+}
+
+export default function SolanaAuthDocsPage() {
+  return (
+    <div className="space-y-12">
+      <div>
+        <p className="text-xs font-bold uppercase tracking-widest mb-2 text-emerald-500">Solana</p>
+        <h1 className="text-3xl font-black text-reveal-light mb-3">Solana Auth (SIWS)</h1>
+        <p className="text-sm leading-relaxed" style={{ color: "hsl(var(--accent-mineral))" }}>
+          Sign-In-With-Solana for Next.js: server-side Ed25519 signature verification, single-use
+          nonces, domain binding, RBAC, and wallet↔email account linking. Devnet playground available
+          on the block detail page — this guide is for <strong style={{ color: "hsl(var(--metal-foreground))" }}>mainnet-beta production</strong> use.
+        </p>
+        <p className="text-xs mt-3" style={{ color: "hsl(var(--metal-shine))" }}>
+          <Link href="/docs/after-you-buy" className="underline hover:opacity-80">Read the universal post-purchase flow</Link> if you haven&apos;t yet.
+        </p>
+      </div>
+
+      <Section title="1. What you received">
+        <p>
+          GitHub sent a collaborator invitation to{" "}
+          <InlineCode>Marrow-Stack/marrow-website-v1.2</InlineCode>. Accept it from your
+          GitHub notifications or email. If it has expired,{" "}
+          <Link href="/dashboard" className="underline hover:opacity-80" style={{ color: "hsl(var(--metal-foreground))" }}>re-deliver from your dashboard</Link>.
+        </p>
+        <p>
+          Once accepted, clone the repo and copy <InlineCode>lib/solana-auth.tsx</InlineCode> (~860 lines)
+          into your project. Exports:
+        </p>
+        <ul className="list-disc list-inside space-y-1.5 pl-2">
+          <li><InlineCode>useSolanaAuth()</InlineCode> — React hook: connect → sign → verify in one call</li>
+          <li><InlineCode>SignInWithSolanaButton</InlineCode> — drop-in component (Phantom, Solflare, Backpack)</li>
+          <li>Two API route handlers: <InlineCode>solanaAuthNonceHandler</InlineCode> and <InlineCode>solanaAuthVerifyHandler</InlineCode></li>
+          <li><InlineCode>WalletProviders</InlineCode> — wallet-adapter context wrapper</li>
+          <li><InlineCode>buildSolanaCredentialsProvider()</InlineCode> — NextAuth Credentials stub</li>
+          <li>SQL migration: <InlineCode>auth_nonces</InlineCode> and <InlineCode>wallets</InlineCode> tables</li>
+        </ul>
+        <p>
+          The file contains <InlineCode>@ts-nocheck</InlineCode> at the top so it type-checks cleanly in
+          this repo without Solana peer dependencies installed. Remove it in your own project after installing peers.
+        </p>
+        <div
+          className="p-3 rounded-xl text-xs"
+          style={{ background: "rgba(210,153,34,0.1)", border: "1px solid rgba(210,153,34,0.2)", color: "#d29922" }}
+        >
+          The playground on the block detail page uses <strong>devnet</strong> with simulated wallets.
+          Your production integration targets <strong>mainnet-beta</strong>. Set <InlineCode>NEXT_PUBLIC_SOLANA_CLUSTER=mainnet-beta</InlineCode>{" "}
+          and use a mainnet RPC endpoint. Never use a devnet wallet address for production sign-in.
+        </div>
+      </Section>
+
+      <Section title="2. Prerequisites">
+        <ul className="list-disc list-inside space-y-1.5 pl-2">
+          <li>Next.js 14 or 15, App Router</li>
+          <li>Supabase project</li>
+          <li>NextAuth already set up (the block adds a Credentials provider to your existing config)</li>
+          <li>Users with Phantom, Solflare, or Backpack wallet browser extension installed (for the sign-in button)</li>
+        </ul>
+      </Section>
+
+      <Section title="3. Install">
+        <ol className="list-decimal list-inside space-y-2 pl-2">
+          <li>Clone the repo and copy <InlineCode>solana-auth.tsx</InlineCode> into your project at <InlineCode>lib/solana-auth.tsx</InlineCode>.</li>
+          <li>Remove <InlineCode>@ts-nocheck</InlineCode> from line 1.</li>
+          <li>Install peer dependencies:</li>
+        </ol>
+        <CodeBlock language="bash" code={`npm install @solana/web3.js bs58 tweetnacl
+npm install @solana/wallet-adapter-base @solana/wallet-adapter-react \\
+    @solana/wallet-adapter-react-ui @solana/wallet-adapter-wallets`} />
+      </Section>
+
+      <Section title="4. Environment">
+        <EnvTable rows={[
+          { name: "NEXT_PUBLIC_SUPABASE_URL",        required: true,  desc: "Your Supabase project URL" },
+          { name: "SUPABASE_SERVICE_ROLE_KEY",       required: true,  desc: "Service role key — server-side only" },
+          { name: "NEXT_PUBLIC_SOLANA_CLUSTER",      required: true,  default: "mainnet-beta", desc: "Must be mainnet-beta in production. devnet is for the playground only." },
+          { name: "SOLANA_RPC_URL",                  required: false, desc: "Custom mainnet RPC endpoint. Falls back to the public endpoint (rate-limited)." },
+          { name: "NEXT_PUBLIC_APP_URL",             required: true,  desc: "Your app's canonical URL, used for domain binding in the SIWS message." },
+          { name: "NEXTAUTH_SECRET",                 required: true,  desc: "Required by NextAuth. Generate: openssl rand -base64 32" },
+        ]} />
+      </Section>
+
+      <Section title="5. Database">
+        <p>
+          Run the <InlineCode>MIGRATION</InlineCode> constant from the top of <InlineCode>solana-auth.tsx</InlineCode> in Supabase SQL Editor.
+        </p>
+        <p>Creates two tables:</p>
+        <ul className="list-disc list-inside space-y-1.5 pl-2">
+          <li><InlineCode>auth_nonces</InlineCode> — single-use SIWS challenges with wallet address, domain, TTL, and consumed_at</li>
+          <li><InlineCode>wallets</InlineCode> — links wallet addresses to user accounts, with RLS</li>
+        </ul>
+        <p>RLS on both tables: service role has full access; anon is blocked.</p>
+      </Section>
+
+      <Section title="6. Wire it in">
+        <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Step 1 — Mount WalletProviders in layout:</strong></p>
+        <CodeBlock filename="app/layout.tsx" code={`import { WalletProviders } from '@/lib/solana-auth'
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html>
+      <body>
+        <WalletProviders cluster="mainnet-beta">
+          {children}
+        </WalletProviders>
+      </body>
+    </html>
+  )
+}`} />
+        <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Step 2 — Mount the two API routes:</strong></p>
+        <CodeBlock filename="app/api/solana-auth/nonce/route.ts" code={`import { solanaAuthNonceHandler } from '@/lib/solana-auth'
+export const GET = solanaAuthNonceHandler`} />
+        <CodeBlock filename="app/api/solana-auth/verify/route.ts" code={`import { solanaAuthVerifyHandler } from '@/lib/solana-auth'
+export const POST = solanaAuthVerifyHandler`} />
+        <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Step 3 — Add the Credentials provider to NextAuth:</strong></p>
+        <CodeBlock filename="lib/auth.ts" code={`import { buildSolanaCredentialsProvider } from '@/lib/solana-auth'
+import NextAuth from 'next-auth'
+import GitHub from 'next-auth/providers/github'
+
+export const authOptions = {
+  providers: [
+    GitHub({ ... }),
+    buildSolanaCredentialsProvider(),   // add this
+  ],
+}`} />
+        <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Step 4 — Drop the button into your sign-in page:</strong></p>
+        <CodeBlock filename="app/auth/signin/page.tsx" code={`'use client'
+import { SignInWithSolanaButton } from '@/lib/solana-auth'
+
+export default function SignInPage() {
+  return (
+    <div>
+      <SignInWithSolanaButton
+        onSuccess={(session) => console.log('Signed in:', session)}
+        onError={(err) => console.error(err)}
+      />
     </div>
-  );
+  )
+}`} />
+      </Section>
+
+      <Section title="7. Verify it works">
+        <ol className="list-decimal list-inside space-y-1.5 pl-2">
+          <li>
+            Open your sign-in page. The <InlineCode>SignInWithSolanaButton</InlineCode> should render.
+            Click it — your wallet extension should open.
+          </li>
+          <li>
+            Approve the connection. The button should transition to &quot;Sign message&quot; state.
+          </li>
+          <li>
+            Sign the message in your wallet. The button transitions to &quot;Verifying…&quot; and
+            then to &quot;Signed in&quot;.
+          </li>
+          <li>
+            Confirm a row in <InlineCode>auth_nonces</InlineCode> has <InlineCode>consumed_at</InlineCode> set (replay protection).
+          </li>
+          <li>
+            Confirm a row in <InlineCode>wallets</InlineCode> links the wallet address to a user account.
+          </li>
+          <li>
+            Try the devnet playground on the{" "}
+            <Link href="/blocks/solana-auth" className="underline hover:opacity-80" style={{ color: "hsl(var(--metal-foreground))" }}>block detail page</Link>{" "}
+            to see the full flow animated step-by-step.
+          </li>
+        </ol>
+      </Section>
+
+      <Section title="8. Failure modes &amp; fixes">
+        <div className="space-y-5">
+          {[
+            { error: "WalletNotConnectedError", cause: "The wallet adapter is not connected before calling useSolanaAuth().", fix: "Wrap your app in WalletProviders and ensure the user clicks connect before sign-in." },
+            { error: "Nonce not found or already consumed", cause: "The nonce expired (5-minute TTL), was already used (replay protection), or the wallet address doesn't match.", fix: "Restart the flow to generate a fresh nonce. Ensure wallet address sent to /api/solana-auth/nonce matches the address used to sign." },
+            { error: "Ed25519 verification failed", cause: "The signature is invalid — either tampered in transit or the message was modified between nonce fetch and signing.", fix: "Ensure the message passed to wallet.signMessage() is exactly the string returned from the nonce endpoint, with no modifications." },
+            { error: "Domain binding error: expected marrowstack.dev, got localhost", cause: "NEXT_PUBLIC_APP_URL is set to the production domain but you're testing locally.", fix: "Set NEXT_PUBLIC_APP_URL=http://localhost:3000 in .env.local for local development." },
+            { error: "TypeError: Cannot read properties of undefined (reading 'signMessage')", cause: "The wallet adapter context is not available — WalletProviders is not wrapping the component.", fix: "Confirm WalletProviders is mounted in app/layout.tsx above all components that use useSolanaAuth or SignInWithSolanaButton." },
+            { error: "relation 'auth_nonces' does not exist", cause: "The SQL migration has not been run.", fix: "Run the MIGRATION constant from solana-auth.tsx in Supabase SQL Editor." },
+          ].map(({ error, cause, fix }) => (
+            <div key={error} className="space-y-1 pb-4 border-b last:border-b-0" style={{ borderColor: "hsl(var(--metal-border))" }}>
+              <p className="font-mono text-[11px]" style={{ color: "#f85149" }}>{error}</p>
+              <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Cause:</strong> {cause}</p>
+              <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>Fix:</strong> {fix}</p>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="9. Security responsibilities">
+        <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>What this block guarantees:</strong></p>
+        <ul className="list-disc list-inside space-y-1.5 pl-2">
+          <li>Ed25519 signature verified server-side using tweetnacl — the client cannot forge a signature.</li>
+          <li>Nonces are single-use (consumed atomically in a single DB update). Replay attacks are prevented.</li>
+          <li>Domain binding: the SIWS message embeds your app domain. A signature obtained from a different domain is rejected.</li>
+          <li>Nonces expire after 5 minutes. An attacker cannot use a nonce from an old session.</li>
+          <li>All verification runs server-side in the API route — the client cannot skip it.</li>
+        </ul>
+        <p><strong style={{ color: "hsl(var(--metal-foreground))" }}>What you must ensure:</strong></p>
+        <ul className="list-disc list-inside space-y-1.5 pl-2">
+          <li>Run on HTTPS. SIWS messages sent over plaintext HTTP can be intercepted and replayed.</li>
+          <li>Set <InlineCode>NEXT_PUBLIC_SOLANA_CLUSTER=mainnet-beta</InlineCode> in production. devnet is for the playground only; these clusters must never share config.</li>
+          <li>Keep <InlineCode>SUPABASE_SERVICE_ROLE_KEY</InlineCode> server-side. It is only needed in the API routes, never in the client.</li>
+          <li>The SIWS message includes your app domain. If you change your domain, update <InlineCode>NEXT_PUBLIC_APP_URL</InlineCode> and re-test.</li>
+        </ul>
+      </Section>
+    </div>
+  )
 }

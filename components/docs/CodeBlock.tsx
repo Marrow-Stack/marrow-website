@@ -55,12 +55,8 @@ export function CodeBlock({ code, language = "typescript", filename }: CodeBlock
 export function InlineCode({ children }: { children: React.ReactNode }) {
   return (
     <code
-      className="px-1.5 py-0.5 rounded text-[12px] font-mono"
-      style={{
-        background:  "rgba(255,255,255,0.06)",
-        border:      "1px solid rgba(255,255,255,0.08)",
-        color:       "hsl(var(--metal-foreground))",
-      }}
+      className="px-1.5 py-0.5 rounded text-[12px] font-mono bg-black/[0.06] dark:bg-white/[0.06] border border-black/[0.1] dark:border-white/[0.08]"
+      style={{ color: "hsl(var(--metal-foreground))" }}
     >
       {children}
     </code>
@@ -92,12 +88,12 @@ export function EnvTable({ rows }: EnvTableProps) {
           {rows.map((row, i) => (
             <tr
               key={row.name}
+              className={i % 2 !== 0 ? "bg-black/[0.03] dark:bg-white/[0.03]" : ""}
               style={{
-                background:   i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.01)",
                 borderBottom: i < rows.length - 1 ? "1px solid hsl(var(--metal-border))" : "none",
               }}
             >
-              <td className="px-4 py-2.5 font-mono" style={{ color: "#79c0ff" }}>{row.name}</td>
+              <td className="px-4 py-2.5 font-mono" style={{ color: "hsl(var(--metal-foreground))" }}>{row.name}</td>
               <td className="px-4 py-2.5">
                 <span
                   className="px-1.5 py-0.5 rounded text-[10px] font-medium"

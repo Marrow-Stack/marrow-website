@@ -73,7 +73,7 @@ export default function BlocksPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search blocks..."
-              className="w-full h-10 pl-10 pr-4 rounded-xl text-sm outline-none transition-all focus:ring-1"
+              className="w-full h-10 pl-10 pr-4 rounded-xl text-sm outline-none transition-all focus-visible:ring-2 focus-visible:ring-metal-shine focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               style={{
                 background: "var(--metal-gradient)",
                 border: "1px solid hsl(var(--metal-border))",

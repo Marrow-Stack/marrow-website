@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import { Background } from "@/components/ui/background";
+import { SessionProvider } from "@/providers/session-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -49,10 +50,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Background className="fixed inset-0 z-0 pointer-events-none" />
-          <main className="relative z-10 text-foreground">
-            {children}
-          </main>
+          <SessionProvider>
+            <Background className="fixed inset-0 z-0 pointer-events-none" />
+            <main className="relative z-10 text-foreground">
+              {children}
+            </main>
+          </SessionProvider>
         </ThemeProvider>
       </body>
     </html>

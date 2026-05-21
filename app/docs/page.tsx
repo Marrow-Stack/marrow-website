@@ -5,10 +5,15 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Docs — MarrowStack",
-  description: "Technical documentation for MarrowStack blocks: auth, admin, team workspace, Solana auth (SIWS), and Solana USDC payments.",
+  description: "Technical documentation for MarrowStack blocks: post-purchase flow, auth, admin, team workspace, Solana auth (SIWS), and Solana USDC payments.",
 };
 
 const SECTIONS = [
+  {
+    href:  "/docs/after-you-buy",
+    label: "After You Buy",
+    desc:  "Universal post-purchase flow: auth, payment rails (Dodo + Solana), GitHub delivery, and how to get help.",
+  },
   {
     href:  "/docs/getting-started",
     label: "Getting Started",
