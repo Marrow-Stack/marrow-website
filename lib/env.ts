@@ -1,14 +1,5 @@
 import { z } from "zod"
 
-// Known devnet/test addresses that must never appear as the production treasury
-const DEVNET_TREASURY_DENYLIST = new Set([
-  "So11111111111111111111111111111111111111112",    // WSOL mint
-  "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU", // common devnet faucet wallet
-  "FriELggez2Dy3phZeHHAdpcoEksKAqkfCDiskZYzQLe",  // devnet test wallet
-  "CpMah17kQEL2wqyMKt3mZBdTnZbkbfx4nqmQMFDP5vwk", // common test recipient
-  "11111111111111111111111111111111",               // system program
-])
-
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   NEXT_PUBLIC_APP_URL: z.url(),
@@ -18,7 +9,7 @@ const envSchema = z.object({
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
 
-  // NextAuth v5
+  // NextAuth
   AUTH_SECRET: z.string().min(32, "AUTH_SECRET must be ≥ 32 chars"),
   AUTH_URL: z.url(),
 
@@ -26,68 +17,38 @@ const envSchema = z.object({
   GITHUB_CLIENT_ID: z.string().min(1),
   GITHUB_CLIENT_SECRET: z.string().min(1),
 
-  // GitHub delivery
-  GITHUB_DELIVERY_PAT: z.string().min(1),
+  // GitHub read-only PAT (public repos, 5000 req/hr vs 60/hr anonymous)
+  GITHUB_TOKEN: z.string().min(1).optional(),
 
-  // Dodo Payments
-  DODO_PAYMENTS_API_KEY: z.string().min(1),
-  DODO_PAYMENTS_WEBHOOK_SECRET: z.string().min(1),
-  DODO_PAYMENTS_MODE: z.enum(["live", "test"]),
+  // Transactional email (Resend)
+  RESEND_API_KEY: z.string().min(1).optional(),
+  SUPPORT_EMAIL: z.email().optional(),
 
-  // Solana store
-  SOLANA_CLUSTER_STORE: z.enum(["mainnet-beta", "devnet", "testnet"]),
-  STORE_SOLANA_RPC_URL: z.url(),
-  STORE_SOL_TREASURY_ADDRESS: z.string().min(32).max(50),
-  STORE_USDC_MINT: z.string().min(32).max(50),
-  STORE_CRYPTO_DEFAULT: z.enum(["sol", "usdc"]).default("usdc"),
+  // Owner attribution
+  NEXT_PUBLIC_OWNER_GITHUB_URL: z.url().optional(),
 
-  // Email
-  EMAIL_FROM: z.email(),
+  // Privacy: HMAC key for IP hashing
+  IP_HASH_SECRET: z.string().min(16).optional(),
 
   // Admin
-  ADMIN_EMAILS: z.string().min(1),
+  ADMIN_REVALIDATE_TOKEN: z.string().optional(),
+  ADMIN_EMAILS: z.string().optional(),
 })
 
 type ParsedEnv = z.infer<typeof envSchema>
 
-function assertProductionGuards(env: ParsedEnv): string[] {
-  const errors: string[] = []
-
-  if (env.SOLANA_CLUSTER_STORE !== "mainnet-beta")
-    errors.push("SOLANA_CLUSTER_STORE must be 'mainnet-beta' in production")
-
-  if (env.DODO_PAYMENTS_MODE !== "live")
-    errors.push("DODO_PAYMENTS_MODE must be 'live' in production")
-
-  if (!env.AUTH_URL.startsWith("https://"))
-    errors.push("AUTH_URL must start with https:// in production")
-
-  if (!env.NEXT_PUBLIC_APP_URL.startsWith("https://"))
-    errors.push("NEXT_PUBLIC_APP_URL must start with https:// in production")
-
-  if (DEVNET_TREASURY_DENYLIST.has(env.STORE_SOL_TREASURY_ADDRESS))
-    errors.push(
-      `STORE_SOL_TREASURY_ADDRESS (${env.STORE_SOL_TREASURY_ADDRESS}) is a known devnet/test address — use your real mainnet wallet`
-    )
-
-  return errors
-}
-
-function assertDevGuards(env: ParsedEnv): string[] {
-  const errors: string[] = []
-
-  if (env.SOLANA_CLUSTER_STORE === "mainnet-beta")
-    errors.push(
-      "SOLANA_CLUSTER_STORE=mainnet-beta in a non-production env would execute real on-chain transactions. Refusing to start."
-    )
-
-  if (env.DODO_PAYMENTS_MODE === "live")
-    errors.push(
-      "DODO_PAYMENTS_MODE=live in a non-production env would process real payments. Refusing to start."
-    )
-
-  return errors
-}
+const REQUIRED_IN_PROD: Array<keyof ParsedEnv> = [
+  "NEXT_PUBLIC_APP_URL",
+  "NEXT_PUBLIC_SUPABASE_URL",
+  "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "AUTH_SECRET",
+  "AUTH_URL",
+  "GITHUB_CLIENT_ID",
+  "GITHUB_CLIENT_SECRET",
+  "GITHUB_TOKEN",
+  "IP_HASH_SECRET",
+]
 
 function validateEnv(): ParsedEnv | null {
   if (typeof process === "undefined") return null
@@ -111,34 +72,32 @@ function validateEnv(): ParsedEnv | null {
   const env = result.data
 
   if (isProd) {
-    const errors = assertProductionGuards(env)
-    if (errors.length > 0) {
+    const missing = REQUIRED_IN_PROD.filter((k) => !env[k])
+    if (missing.length > 0) {
       throw new Error(
-        `[env] Production environment misconfiguration — refusing to start:\n` +
-          errors.map((e) => `  ✗ ${e}`).join("\n")
+        `[env] Production is missing required keys: ${missing.join(", ")}`
       )
     }
-  } else {
-    const errors = assertDevGuards(env)
-    if (errors.length > 0) {
-      throw new Error(
-        `[env] Dev/test env has production credentials — refusing to start:\n` +
-          errors.map((e) => `  ✗ ${e}`).join("\n")
-      )
+
+    if (!env.GITHUB_TOKEN) {
+      console.warn("[env] GITHUB_TOKEN is not set — GitHub API rate limit is 60 req/hr per IP")
+    }
+
+    if (!env.AUTH_URL?.startsWith("https://")) {
+      throw new Error("[env] AUTH_URL must start with https:// in production")
     }
   }
 
   if (!isTest) {
     const keys = Object.keys(env)
-      .filter((k) => env[k as keyof ParsedEnv] !== undefined && env[k as keyof ParsedEnv] !== "")
+      .filter((k) => env[k as keyof ParsedEnv] !== undefined)
       .sort()
-    console.log(`[env] Loaded (${env.NODE_ENV}) — keys: ${keys.join(", ")}`)
+    console.log(`[env] Loaded (${env.NODE_ENV}) — ${keys.length} keys`)
   }
 
   return env
 }
 
-// Validated at module load. Throws immediately on production misconfig.
 const _env = validateEnv()
 
 export { _env as env }

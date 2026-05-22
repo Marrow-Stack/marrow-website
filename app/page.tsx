@@ -1,8 +1,9 @@
 import { HeroSection } from "@/components/Hero";
 import { RefractiveDock } from "@/components/navbar";
 import { FeaturesSection } from "@/components/sections/FeaturesSection";
-import { BlocksShowcase } from "@/components/sections/BlocksShowcase";
-import { PricingSection } from "@/components/sections/PricingSection";
+import { BlocksShowcaseSection } from "@/components/sections/BlocksShowcaseSection";
+import { BundlesSection } from "@/components/sections/BundlesSection";
+import { WhatsNextSection } from "@/components/sections/WhatsNextSection";
 import { Footer } from "@/components/Footer";
 
 export default function Home() {
@@ -11,8 +12,9 @@ export default function Home() {
       <RefractiveDock />
       <HeroSection />
       <FeaturesSection />
-      <BlocksShowcase />
-      <PricingSection />
+      <BlocksShowcaseSection />
+      <BundlesSection />
+      <WhatsNextSection />
       <Footer />
     </div>
   );

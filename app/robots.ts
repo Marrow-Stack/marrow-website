@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/dashboard/", "/auth/", "/admin/", "/checkout/"],
+        disallow: ["/api/", "/dashboard/", "/auth/", "/admin/"],
       },
     ],
     sitemap: "https://marrowstack.dev/sitemap.xml",

@@ -1,18 +1,36 @@
-import { NextResponse } from "next/server"
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
-export const dynamic = "force-dynamic"
-export const runtime = "nodejs"
-
-// Health probe — returns env label and version, never secret values.
-// Vercel uses this to verify the deployment is alive.
 export async function GET() {
-  const commit = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 8) ?? "local"
-  const version = process.env.npm_package_version ?? "0.1.0"
+  let githubRemaining = -1;
+  let githubResetAt = "";
 
-  return NextResponse.json({
+  try {
+    const res = await fetch("https://api.github.com/rate_limit", {
+      headers: {
+        Accept: "application/vnd.github+json",
+        ...(process.env.GITHUB_TOKEN
+          ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` }
+          : {}),
+      },
+      cache: "no-store",
+    });
+    if (res.ok) {
+      const data = await res.json();
+      githubRemaining = data.rate?.remaining ?? -1;
+      githubResetAt = data.rate?.reset
+        ? new Date(data.rate.reset * 1000).toISOString()
+        : "";
+    }
+  } catch {}
+
+  return Response.json({
     ok: true,
-    version,
-    commit,
-    env: process.env.NODE_ENV === "production" ? "production" : "development",
-  })
+    env: process.env.NODE_ENV,
+    commit: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? "local",
+    github: {
+      remaining: githubRemaining,
+      resetAt: githubResetAt,
+    },
+  });
 }
