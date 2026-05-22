@@ -60,7 +60,7 @@ export function Footer() {
               className="block text-[12px] transition-opacity hover:opacity-80"
               style={{ color: "hsl(var(--metal-shine))" }}
             >
-              samarth@marrowstack.dev
+              samarthofficial52@gmail.com
             </a>
             <a
               href="https://github.com/Marrow-Stack"
