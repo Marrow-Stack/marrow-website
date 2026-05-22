@@ -56,7 +56,7 @@ export function Footer() {
         >
           <div className="space-y-1">
             <a
-              href="mailto:samarth@marrowstack.dev"
+              href="mailto:samarthofficial52@gmail.com"
               className="block text-[12px] transition-opacity hover:opacity-80"
               style={{ color: "hsl(var(--metal-shine))" }}
             >
