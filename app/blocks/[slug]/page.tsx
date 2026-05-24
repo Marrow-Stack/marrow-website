@@ -5,7 +5,7 @@ import { ArrowLeft, Clock, ExternalLink, FileCode } from "lucide-react";
 import type { Metadata } from "next";
 
 import { BLOCKS, getBlock, CATEGORY_LABELS } from "@/lib/blocks/registry";
-import { listBlockFiles, buildCopyAllPayload, BlockNotAvailableError } from "@/lib/github/fetch";
+import { listBlockFiles, getBlockFile, buildCopyAllPayload, BlockNotAvailableError } from "@/lib/github/fetch";
 import { RefractiveDock } from "@/components/navbar";
 import { Footer } from "@/components/Footer";
 import { FileViewer } from "@/components/blocks/viewer/FileViewer";
@@ -95,11 +95,23 @@ export default async function BlockDetailPage({
     );
   }
 
-  // Build copy-all payload with all file contents
+  // Fetch all file contents for the copy-all payload
   const fileContentMap = new Map<string, string>();
   if (source.readme) {
     fileContentMap.set(source.readme.path, source.readme.content);
   }
+  await Promise.all(
+    source.files
+      .filter((f) => !fileContentMap.has(f.path))
+      .map(async (f) => {
+        try {
+          const { content } = await getBlockFile(slug, f.path);
+          fileContentMap.set(f.path, content);
+        } catch {
+          // skip files that fail to fetch
+        }
+      })
+  );
   const copyAllPayload = buildCopyAllPayload(source, fileContentMap);
 
   // JSON-LD
