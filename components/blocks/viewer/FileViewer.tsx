@@ -7,7 +7,6 @@ import { useSession } from "next-auth/react";
 import type { BlockFile, BlockSource } from "@/lib/github/fetch";
 import { TactileButton } from "@/components/marrow/TactileButton";
 
-// ─── Copy utility ─────────────────────────────────────────────────────────────
 
 async function copyText(text: string): Promise<boolean> {
   if (typeof navigator !== "undefined" && navigator.clipboard) {
@@ -28,7 +27,6 @@ async function copyText(text: string): Promise<boolean> {
   return ok;
 }
 
-// ─── Syntax highlight via Shiki (dynamic import to keep Shiki out of index bundle)
 
 async function highlight(code: string, lang: string): Promise<string> {
   const { codeToHtml } = await import("shiki");
@@ -39,7 +37,6 @@ async function highlight(code: string, lang: string): Promise<string> {
   });
 }
 
-// ─── File sidebar ─────────────────────────────────────────────────────────────
 
 interface FileSidebarProps {
   files: BlockFile[];
@@ -52,7 +49,6 @@ function FileSidebar({ files, selected, onSelect }: FileSidebarProps) {
 
   return (
     <>
-      {/* Mobile toggle */}
       <button
         className="sm:hidden flex items-center gap-2 text-xs font-medium mb-3 px-3 py-2 rounded-lg border w-full"
         style={{
@@ -66,7 +62,6 @@ function FileSidebar({ files, selected, onSelect }: FileSidebarProps) {
         {selected} ({files.length} files)
       </button>
 
-      {/* Sidebar list */}
       <ul className={`space-y-0.5 ${open ? "block" : "hidden sm:block"}`}>
         {files.map((f) => (
           <li key={f.path}>
@@ -98,7 +93,6 @@ function FileSidebar({ files, selected, onSelect }: FileSidebarProps) {
   );
 }
 
-// ─── File pane ────────────────────────────────────────────────────────────────
 
 interface FilePaneProps {
   slug: string;
@@ -179,7 +173,6 @@ function FilePane({ slug, file, initialContent, isSignedIn, repoOwner, repoName 
         borderColor: "hsl(var(--metal-border))",
       }}
     >
-      {/* File header bar */}
       <div
         className="flex items-center justify-between px-4 py-2.5 border-b gap-3"
         style={{
@@ -195,7 +188,6 @@ function FilePane({ slug, file, initialContent, isSignedIn, repoOwner, repoName 
         </span>
 
         <div className="flex items-center gap-2 shrink-0">
-          {/* Copy */}
           {isSignedIn ? (
             <button
               onClick={handleCopy}
@@ -224,7 +216,6 @@ function FilePane({ slug, file, initialContent, isSignedIn, repoOwner, repoName 
             </span>
           )}
 
-          {/* Raw */}
           <a
             href={file.rawUrl}
             target="_blank"
@@ -238,7 +229,6 @@ function FilePane({ slug, file, initialContent, isSignedIn, repoOwner, repoName 
             Raw
           </a>
 
-          {/* GitHub */}
           <a
             href={githubUrl}
             target="_blank"
@@ -255,7 +245,6 @@ function FilePane({ slug, file, initialContent, isSignedIn, repoOwner, repoName 
         </div>
       </div>
 
-      {/* Content area */}
       <div className="overflow-auto max-h-[640px] text-[13px]">
         {loading && (
           <div className="p-6 text-center" style={{ color: "hsl(var(--metal-shine))" }}>
@@ -289,7 +278,6 @@ function FilePane({ slug, file, initialContent, isSignedIn, repoOwner, repoName 
   );
 }
 
-// ─── Main FileViewer component ────────────────────────────────────────────────
 
 interface FileViewerProps {
   source: BlockSource;
@@ -323,7 +311,6 @@ export function FileViewer({ source, copyAllPayload }: FileViewerProps) {
 
   return (
     <div>
-      {/* Copy-all CTA */}
       <div className="flex flex-wrap items-center gap-3 mb-6">
         {isSignedIn ? (
           <TactileButton
@@ -377,7 +364,6 @@ export function FileViewer({ source, copyAllPayload }: FileViewerProps) {
         </a>
       </div>
 
-      {/* Sign-in hint for signed-out users */}
       {!isSignedIn && (
         <motion.div
           initial={{ opacity: 0, y: -4 }}
@@ -399,9 +385,7 @@ export function FileViewer({ source, copyAllPayload }: FileViewerProps) {
         </motion.div>
       )}
 
-      {/* File viewer grid */}
       <div className="grid grid-cols-1 sm:grid-cols-[200px_1fr] gap-4">
-        {/* Sidebar */}
         <div>
           <FileSidebar
             files={source.files}
@@ -410,7 +394,6 @@ export function FileViewer({ source, copyAllPayload }: FileViewerProps) {
           />
         </div>
 
-        {/* Right pane */}
         <div className="min-w-0">
           {selectedFile && (
             <FilePane

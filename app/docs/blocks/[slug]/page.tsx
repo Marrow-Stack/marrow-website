@@ -1,10 +1,9 @@
-import React from "react"
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { getBlock, BLOCKS, type BlockEntry } from "@/lib/blocks/registry"
-import { CodeBlock, EnvTable, InlineCode } from "@/components/docs/CodeBlock"
+import { CodeBlock, EnvTable, InlineCode, Section } from "@/components/docs/CodeBlock"
 
 export async function generateStaticParams() {
   return BLOCKS.map((b) => ({ slug: b.slug }))
@@ -227,17 +226,6 @@ const DIFFICULTY_COLORS: Record<string, string> = {
 }
 
 // ─── Components ───────────────────────────────────────────────────────────────
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="space-y-4">
-      <h2 className="text-xl font-bold" style={{ color: "hsl(var(--metal-foreground))" }}>{title}</h2>
-      <div className="space-y-3 text-sm leading-relaxed" style={{ color: "hsl(var(--accent-mineral))" }}>
-        {children}
-      </div>
-    </section>
-  )
-}
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 

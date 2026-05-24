@@ -32,7 +32,7 @@ export const HeroSection = () => {
                         initial={{ opacity: 0, y: 15, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         transition={{ duration: 0.8, delay: 0.3, ease: [0.23, 1, 0.32, 1] }}
-                        className="relative inline-flex items-center gap-2 px-2 py-1.5 rounded-full bg-zinc-100/50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 text-xs font-medium text-zinc-600 dark:text-zinc-100 mb-8 backdrop-blur-sm shadow-sm overflow-hidden z-10"
+                        className="relative inline-flex items-center gap-2 px-2 py-1.5 rounded-full bg-zinc-100/50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 text-xs font-medium text-zinc-600 dark:text-zinc-100 mb-4 sm:mb-8 backdrop-blur-sm shadow-sm overflow-hidden z-10"
                     >
                         <Badge />
                         <BorderBeam
@@ -54,14 +54,12 @@ export const HeroSection = () => {
                             className="hidden dark:block"
                         />
                     </motion.div>
-                    <h1 className="relative flex flex-col items-center justify-center text-center text-4xl sm:text-6xl font-black md:text-7xl lg:text-9xl leading-[0.8] mb-8 w-full tracking-engineered select-none">
+                    <h1 className="relative flex flex-col items-center justify-center text-center text-[2rem] sm:text-6xl font-black md:text-7xl lg:text-9xl leading-[0.85] sm:leading-[0.8] mb-4 sm:mb-8 w-full tracking-engineered select-none">
 
-                        {/* Static Lead-in */}
                         <span className="shrink-0 sm:pr-8 text-reveal-light pb-8 -mb-8 pt-2 dark:drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
                             Engineered
                         </span>
 
-                        {/* Animated Suffix Container */}
                         <span
                             className="relative flex items-center overflow-hidden justify-center sm:justify-start pb-4 -mb-8 pt-2 px-4 sm:px-12 -mx-4 sm:-mx-12"
                             style={{
@@ -94,9 +92,9 @@ export const HeroSection = () => {
                         transition={{ duration: 0.8, delay: 0.6, ease: [0.23, 1, 0.32, 1] }}
                         className="flex justify-center w-full mb-1"
                     >
-                        <div className="px-10 py-5 min-w-[300px] max-w-fit">
-                            <p className="relative z-10 text-base md:text-lg text-foreground/90 font-medium tracking-tight text-center whitespace-nowrap">
-                                A curated collection of high-performance & beautifully engineered blocks.
+                        <div className="py-3 sm:py-5 px-2 sm:px-10 w-full sm:w-auto sm:min-w-[300px] sm:max-w-fit">
+                            <p className="relative z-10 text-sm sm:text-base md:text-lg text-foreground/90 font-medium tracking-tight text-center">
+                                A curated collection of high-performance &amp; beautifully engineered blocks.
                             </p>
                         </div>
                     </motion.div>
@@ -105,10 +103,10 @@ export const HeroSection = () => {
                         initial={{ opacity: 0, y: 15, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         transition={{ duration: 0.8, delay: 0.7, ease: [0.23, 1, 0.32, 1] }}
-                        className="flex justify-center mt-2"
+                        className="flex justify-center mt-4 sm:mt-2"
                     >
                         <Link href="/blocks">
-                            <AnimatedButton className="text-sm px-8 py-4 cursor-pointer">
+                            <AnimatedButton className="text-sm px-8 py-4 min-h-[48px] cursor-pointer">
                                 Browse Blocks
                             </AnimatedButton>
                         </Link>

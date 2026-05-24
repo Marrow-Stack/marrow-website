@@ -7,7 +7,6 @@ import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 
-// Navigation configuration
 type DockItem = {
   name: string;
   icon: LucideIcon;
@@ -19,7 +18,6 @@ const LEFT_ITEMS: DockItem[] = [
   { name: "Docs", icon: BookOpen, href: "/docs" },
 ];
 
-// Internal Sub-component: Auth button (sign-in or sign-out)
 function AuthButton() {
   const { data: session, status } = useSession()
   if (status === "loading") return null
@@ -63,7 +61,6 @@ export const RefractiveDock = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Handle Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
@@ -82,19 +79,16 @@ export const RefractiveDock = () => {
       animate={{ y: 0, opacity: 1 }}
       className="fixed top-10 inset-x-0 mx-auto z-50 flex h-16 max-w-5xl items-center justify-between glass-capsule-solid px-4 sm:px-8 border border-black/10 dark:border-white/10 shadow-2xl transition-all duration-300 rounded-2xl backdrop-blur-sm"
     >
-      {/* Left Section: Nav Buttons */}
       <div className="flex items-center gap-3 sm:gap-6">
         {LEFT_ITEMS.map((item) => (
           <DockIcon key={item.name} item={item} />
         ))}
       </div>
 
-      {/* Center Section: Adaptive Logo */}
       <div className="flex items-center justify-center flex-1 px-4">
         <Logo theme={resolvedTheme ?? theme} />
       </div>
 
-      {/* Right Section: Search & Theme Toggle */}
       <div className="flex items-center gap-4">
         <div className="relative group hidden sm:flex items-center">
           <Search className="absolute left-3 h-4 w-4 text-zinc-500 dark:text-zinc-400 pointer-events-none group-focus-within:text-black dark:group-focus-within:text-white transition-colors" />
@@ -133,7 +127,6 @@ export const RefractiveDock = () => {
   );
 };
 
-// Internal Sub-component: Logo
 const Logo = ({ theme }: { theme?: string }) => {
   const src = theme === "dark" ? "/white.svg" : "/black.svg";
 
@@ -151,7 +144,6 @@ const Logo = ({ theme }: { theme?: string }) => {
   );
 };
 
-// Internal Sub-component: DockIcon
 function DockIcon({ item }: { item: DockItem }) {
   return (
     <Link href={item.href}>

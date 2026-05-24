@@ -1,22 +1,10 @@
-import React from "react"
 import type { Metadata } from "next"
-import { CodeBlock, EnvTable, InlineCode } from "@/components/docs/CodeBlock"
+import { CodeBlock, EnvTable, InlineCode, Section } from "@/components/docs/CodeBlock"
 import Link from "next/link"
 
 export const metadata: Metadata = {
   title: "Auth System — Integration Guide — MarrowStack",
   description: "Integration walkthrough for the MarrowStack Auth System block: NextAuth + Supabase, bcrypt, GitHub/Google OAuth, email verification, RBAC.",
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="space-y-4">
-      <h2 className="text-xl font-bold" style={{ color: "hsl(var(--metal-foreground))" }}>{title}</h2>
-      <div className="space-y-3 text-sm leading-relaxed" style={{ color: "hsl(var(--accent-mineral))" }}>
-        {children}
-      </div>
-    </section>
-  )
 }
 
 export default function AuthDocsPage() {

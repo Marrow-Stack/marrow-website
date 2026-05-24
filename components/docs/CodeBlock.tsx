@@ -52,6 +52,17 @@ export function CodeBlock({ code, language = "typescript", filename }: CodeBlock
   );
 }
 
+export function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="space-y-4">
+      <h2 className="text-xl font-bold" style={{ color: "hsl(var(--metal-foreground))" }}>{title}</h2>
+      <div className="space-y-3 text-sm leading-relaxed" style={{ color: "hsl(var(--accent-mineral))" }}>
+        {children}
+      </div>
+    </section>
+  )
+}
+
 export function InlineCode({ children }: { children: React.ReactNode }) {
   return (
     <code

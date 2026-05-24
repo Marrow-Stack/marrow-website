@@ -1,22 +1,10 @@
-import React from "react"
 import type { Metadata } from "next"
-import { CodeBlock, InlineCode } from "@/components/docs/CodeBlock"
+import { CodeBlock, InlineCode, Section } from "@/components/docs/CodeBlock"
 import Link from "next/link"
 
 export const metadata: Metadata = {
   title: "Error Handling — Integration Guide — MarrowStack",
   description: "Integration walkthrough for the MarrowStack Error Handling block: typed AppError, withApi() wrapper, React ErrorBoundary, and structured logging.",
-}
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="space-y-4">
-      <h2 className="text-xl font-bold" style={{ color: "hsl(var(--metal-foreground))" }}>{title}</h2>
-      <div className="space-y-3 text-sm leading-relaxed" style={{ color: "hsl(var(--accent-mineral))" }}>
-        {children}
-      </div>
-    </section>
-  )
 }
 
 export default function ErrorsDocsPage() {

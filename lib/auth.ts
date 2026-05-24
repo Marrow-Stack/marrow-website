@@ -6,7 +6,6 @@ import bs58 from "bs58"
 import { getAdminClient } from "./supabase"
 import { type DbUser } from "./supabase"
 
-// ─── Type augmentation ────────────────────────────────────────────────────────
 
 declare module "next-auth" {
   interface User {
@@ -25,7 +24,6 @@ declare module "next-auth" {
   }
 }
 
-// ─── Supabase user helpers ────────────────────────────────────────────────────
 
 async function upsertGithubUser(params: {
   githubId: string
@@ -69,7 +67,6 @@ async function upsertWalletUser(wallet: string): Promise<DbUser> {
   return data as DbUser
 }
 
-// ─── SIWS signature verification ─────────────────────────────────────────────
 
 function verifySolanaSignature(
   message: string,
@@ -86,7 +83,6 @@ function verifySolanaSignature(
   }
 }
 
-// ─── Nonce management (via Supabase) ─────────────────────────────────────────
 
 const NONCE_TTL_MS = 5 * 60 * 1000 // 5 minutes
 
@@ -108,7 +104,6 @@ async function consumeNonce(nonce: string, wallet: string): Promise<boolean> {
   return Array.isArray(data) && data.length > 0
 }
 
-// ─── NextAuth config ──────────────────────────────────────────────────────────
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.AUTH_SECRET,
@@ -144,7 +139,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const consumed = await consumeNonce(nonce, wallet)
         if (!consumed) return null
 
-        // 3. Upsert user
         const user = await upsertWalletUser(wallet)
 
         return {

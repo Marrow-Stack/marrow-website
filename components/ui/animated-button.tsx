@@ -11,11 +11,6 @@ type AnimatedButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
     as?: any;
   };
 
-/**
- * AnimatedButton
- * - theme-aware: uses Tailwind `dark:` classes so it works in both light and dark mode
- * - accepts all native button props (onClick, className, type, etc.)
- */
 const AnimatedButton: React.FC<AnimatedButtonProps> = ({
   children = "Browse Components",
   className = "",
@@ -40,8 +35,6 @@ const AnimatedButton: React.FC<AnimatedButtonProps> = ({
           mass: 0.1,
         },
       }}
-      // Set a CSS variable `--shine` that we override for dark mode via Tailwind.
-      // Tailwind JIT allows arbitrary properties like `dark:[--shine:...]` if enabled.
       className={cn(
         "group inline-flex items-center justify-center px-6 py-6 rounded-md relative overflow-hidden bg-neutral-50 dark:bg-black border border-neutral-200 dark:border-neutral-800",
         "text-neutral-900 dark:text-neutral-100 font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-950 disabled:pointer-events-none disabled:opacity-50",
@@ -49,7 +42,6 @@ const AnimatedButton: React.FC<AnimatedButtonProps> = ({
         className,
       )}
     >
-      {/* Text with shine mask */}
       <motion.span
         className="tracking-wide font-light p-3 flex items-center justify-center h-full w-full relative z-10"
         style={{
@@ -72,7 +64,6 @@ const AnimatedButton: React.FC<AnimatedButtonProps> = ({
         {children}
       </motion.span>
 
-      {/* Border shine effect uses the --shine variable so it adapts to theme */}
       <motion.span
         className="block absolute inset-0 rounded-md p-px"
         style={{
