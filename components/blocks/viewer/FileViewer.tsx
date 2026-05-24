@@ -3,6 +3,7 @@
 import React, { useState, useCallback, useTransition } from "react";
 import { motion } from "framer-motion";
 import { Copy, ExternalLink, FileText, Check, Lock, ChevronDown, ChevronRight } from "lucide-react";
+import { useSession } from "next-auth/react";
 import type { BlockFile, BlockSource } from "@/lib/github/fetch";
 import { TactileButton } from "@/components/marrow/TactileButton";
 
@@ -292,11 +293,12 @@ function FilePane({ slug, file, initialContent, isSignedIn, repoOwner, repoName 
 
 interface FileViewerProps {
   source: BlockSource;
-  isSignedIn: boolean;
   copyAllPayload: string;
 }
 
-export function FileViewer({ source, isSignedIn, copyAllPayload }: FileViewerProps) {
+export function FileViewer({ source, copyAllPayload }: FileViewerProps) {
+  const { data: session } = useSession();
+  const isSignedIn = !!session?.user;
   const [selectedPath, setSelectedPath] = useState<string>(
     source.readme?.path ?? source.files[0]?.path ?? ""
   );

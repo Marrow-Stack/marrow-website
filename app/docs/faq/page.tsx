@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "FAQ — MarrowStack Docs",
-  description: "Licensing, updates, refunds, Solana cluster questions, and ORM compatibility for MarrowStack blocks.",
+  description: "Licensing, Solana cluster questions, and ORM compatibility for MarrowStack blocks.",
 };
 
 export default function FaqDocsPage() {
@@ -12,47 +12,39 @@ export default function FaqDocsPage() {
       <div>
         <h1 className="text-3xl font-black text-reveal-light mb-3">FAQ</h1>
         <p className="text-sm leading-relaxed" style={{ color: "hsl(var(--accent-mineral))" }}>
-          Common questions about licensing, delivery, Solana specifics, and compatibility.
+          Common questions about licensing, Solana specifics, and compatibility.
         </p>
       </div>
 
       <Section title="Licensing">
-        <FaqItem q="Can I use a block in multiple projects?">
-          Each purchase grants a single-developer, unlimited-project license. You can use the block in
-          as many apps as you build. You cannot resell the block or distribute the source to other developers —
-          each developer on your team who accesses the source needs their own license.
+        <FaqItem q="Are all blocks really free?">
+          Yes. Every block on MarrowStack is free and MIT licensed. Sign in with GitHub OAuth or a Solana
+          wallet and copy any block directly from the browser. No payment, no waitlist.
         </FaqItem>
-        <FaqItem q="Are the Solana blocks really open source?">
-          Yes. <code className="font-mono text-[11px]">solana-auth.ts</code> and <code className="font-mono text-[11px]">solana-payments.ts</code> are
-          released under the MIT license. The MIT header is at the top of each file. You can fork, modify, and
-          redistribute them freely. The web2 blocks (Auth, Admin, Team Workspace) are source-available under a
-          commercial license — you own the code after purchase but cannot redistribute.
+        <FaqItem q="Can I use a block in commercial projects?">
+          Yes. The MIT license lets you use, modify, and distribute the code in any project — personal or
+          commercial — without restriction. Attribution is not required.
         </FaqItem>
         <FaqItem q="Do I get updates?">
-          Yes. Purchases include lifetime updates. When a block is updated (security patch, API compatibility fix,
-          or new feature), the update appears in the GitHub repository you were granted access to. Pull the update
-          and copy the changed file into your project. There is no auto-update mechanism — you control when you adopt changes.
-        </FaqItem>
-        <FaqItem q="What's your refund policy?">
-          If a block doesn't work in your stated environment and we can't fix it within 5 business days, we'll refund.
-          No refunds for &quot;changed my mind&quot; — you receive source code on purchase. Contact us before purchasing
-          if you have compatibility questions.
+          Yes. Blocks are updated in their public GitHub repositories. Pull the latest version of any block
+          and copy the changed file into your project. There is no auto-update mechanism — you control when
+          you adopt changes.
         </FaqItem>
       </Section>
 
-      <Section title="Delivery">
-        <FaqItem q="How do I receive the block after purchase?">
-          You receive GitHub repository access within seconds of payment confirmation. The repository contains one
-          directory per block you've purchased. Clone it and copy the block directory into your project.
+      <Section title="Access">
+        <FaqItem q="How do I get a block?">
+          Sign in at marrowstack.dev (GitHub OAuth or Solana wallet), open any block, and click
+          <strong> Copy all files</strong>. All file contents are copied to your clipboard. Paste them
+          into your project. No cloning required.
         </FaqItem>
         <FaqItem q="Is there a CLI or code generator?">
           No. MarrowStack blocks are plain TypeScript files. Copy the file, run the SQL migration, set env vars.
           No generator, no scaffold tool, no dependency on a MarrowStack package at runtime.
         </FaqItem>
-        <FaqItem q="Can I see the code before buying?">
-          The playground on each block's page demonstrates the block's functionality and shows a meaningful code
-          excerpt. The full source is delivered on purchase. If you have a specific question about implementation
-          before buying, email us.
+        <FaqItem q="Why do I need to sign in just to copy?">
+          Sign-in prevents anonymous abuse of the copy API and lets us track which blocks are most useful.
+          Both GitHub OAuth and Solana wallet sign-in take under 30 seconds.
         </FaqItem>
       </Section>
 

@@ -19,7 +19,7 @@ export function BlocksShowcaseSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7, ease: [0.23, 1, 0.32, 1] }}
-          className="flex items-end justify-between mb-12"
+          className="flex flex-wrap items-end gap-4 justify-between mb-12"
         >
           <div>
             <p

@@ -1,9 +1,9 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Boxes, BookOpen, Search, Sun, Moon, LayoutDashboard, LogIn, type LucideIcon } from "lucide-react";
+import { Boxes, BookOpen, Search, Sun, Moon, LayoutDashboard, LogIn, LogOut, type LucideIcon } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -26,25 +26,39 @@ function AuthButton() {
 
   if (session) {
     return (
-      <Link href="/dashboard" title="Dashboard">
-        <motion.div
-          className="group relative flex aspect-square h-10 w-10 items-center justify-center rounded-full bg-zinc-200/50 dark:bg-zinc-900/40 border border-black/5 dark:border-white/5 transition-colors hover:bg-zinc-300/50 dark:hover:bg-zinc-800/80 cursor-pointer"
+      <div className="flex items-center gap-1.5">
+        <Link href="/dashboard" title="Dashboard">
+          <motion.div
+            className="group relative flex aspect-square h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-zinc-200/50 dark:bg-zinc-900/40 border border-black/5 dark:border-white/5 transition-colors hover:bg-zinc-300/50 dark:hover:bg-zinc-800/80 cursor-pointer"
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 500, damping: 15 }}
+          >
+            <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 rounded-md border border-black/10 dark:border-white/10 bg-white/90 dark:bg-black/80 backdrop-blur-md px-2 py-1 text-[10px] font-medium text-black dark:text-white opacity-0 transition-opacity group-hover:opacity-100 whitespace-nowrap pointer-events-none">
+              Dashboard
+            </span>
+            <LayoutDashboard className="h-full w-full p-2.5 text-zinc-600 dark:text-zinc-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
+          </motion.div>
+        </Link>
+        <motion.button
+          onClick={() => signOut({ callbackUrl: "/" })}
+          title="Sign out"
+          className="group relative flex aspect-square h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-zinc-200/50 dark:bg-zinc-900/40 border border-black/5 dark:border-white/5 transition-colors hover:bg-zinc-300/50 dark:hover:bg-zinc-800/80 cursor-pointer"
           whileTap={{ scale: 0.95 }}
           transition={{ type: "spring", stiffness: 500, damping: 15 }}
         >
           <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 rounded-md border border-black/10 dark:border-white/10 bg-white/90 dark:bg-black/80 backdrop-blur-md px-2 py-1 text-[10px] font-medium text-black dark:text-white opacity-0 transition-opacity group-hover:opacity-100 whitespace-nowrap pointer-events-none">
-            Dashboard
+            Sign out
           </span>
-          <LayoutDashboard className="h-full w-full p-2.5 text-zinc-600 dark:text-zinc-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
-        </motion.div>
-      </Link>
+          <LogOut className="h-full w-full p-2.5 text-zinc-600 dark:text-zinc-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
+        </motion.button>
+      </div>
     )
   }
 
   return (
     <Link href="/auth/signin" title="Sign in">
       <motion.div
-        className="group relative flex items-center gap-1.5 h-10 px-3 rounded-full bg-zinc-200/50 dark:bg-zinc-900/40 border border-black/5 dark:border-white/5 transition-colors hover:bg-zinc-300/50 dark:hover:bg-zinc-800/80 cursor-pointer"
+        className="group relative flex items-center gap-1.5 h-9 px-2.5 sm:h-10 sm:px-3 rounded-full bg-zinc-200/50 dark:bg-zinc-900/40 border border-black/5 dark:border-white/5 transition-colors hover:bg-zinc-300/50 dark:hover:bg-zinc-800/80 cursor-pointer"
         whileTap={{ scale: 0.95 }}
         transition={{ type: "spring", stiffness: 500, damping: 15 }}
       >
@@ -80,10 +94,10 @@ export const RefractiveDock = () => {
     <motion.nav
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="fixed top-10 inset-x-0 mx-auto z-50 flex h-16 max-w-5xl items-center justify-between glass-capsule-solid px-8 border border-black/10 dark:border-white/10 shadow-2xl transition-all duration-300 rounded-2xl backdrop-blur-sm"
+      className="fixed top-10 inset-x-0 mx-auto z-50 flex h-16 max-w-5xl items-center justify-between glass-capsule-solid px-4 sm:px-8 border border-black/10 dark:border-white/10 shadow-2xl transition-all duration-300 rounded-2xl backdrop-blur-sm"
     >
       {/* Left Section: Nav Buttons */}
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-3 sm:gap-6">
         {LEFT_ITEMS.map((item) => (
           <DockIcon key={item.name} item={item} />
         ))}
@@ -123,7 +137,7 @@ export const RefractiveDock = () => {
 
         <button
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="group relative flex h-10 w-10 items-center justify-center rounded-full bg-zinc-200/50 dark:bg-zinc-800/50 border border-black/5 dark:border-white/5 transition-all hover:bg-zinc-300/50 dark:hover:bg-zinc-700/50 active:scale-95"
+          className="group relative flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-zinc-200/50 dark:bg-zinc-800/50 border border-black/5 dark:border-white/5 transition-all hover:bg-zinc-300/50 dark:hover:bg-zinc-700/50 active:scale-95"
         >
           <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-zinc-600 dark:text-zinc-400 group-hover:text-black dark:group-hover:text-white" />
           <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-zinc-600 dark:text-zinc-400 group-hover:text-black dark:group-hover:text-white" />
@@ -156,7 +170,7 @@ function DockIcon({ item }: { item: DockItem }) {
   return (
     <Link href={item.href}>
       <motion.div
-        className="group relative flex aspect-square h-10 w-10 items-center justify-center rounded-full bg-zinc-200/50 dark:bg-zinc-900/40 border border-black/5 dark:border-white/5 transition-colors hover:bg-zinc-300/50 dark:hover:bg-zinc-800/80 cursor-pointer"
+        className="group relative flex aspect-square h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-zinc-200/50 dark:bg-zinc-900/40 border border-black/5 dark:border-white/5 transition-colors hover:bg-zinc-300/50 dark:hover:bg-zinc-800/80 cursor-pointer"
       >
         <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 rounded-md border border-black/10 dark:border-white/10 bg-white/90 dark:bg-black/80 backdrop-blur-md px-2 py-1 text-[10px] font-medium text-black dark:text-white opacity-0 transition-opacity group-hover:opacity-100 whitespace-nowrap pointer-events-none">
           {item.name}

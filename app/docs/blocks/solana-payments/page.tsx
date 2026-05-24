@@ -5,7 +5,7 @@ import Link from "next/link"
 
 export const metadata: Metadata = {
   title: "Solana Payments (USDC) — Integration Guide — MarrowStack",
-  description: "Post-purchase integration walkthrough for the MarrowStack Solana Payments block: reference-keyed USDC transfers, 6-point on-chain verification, idempotency, x402 middleware.",
+  description: "Integration walkthrough for the MarrowStack Solana Payments block: reference-keyed USDC transfers, 6-point on-chain verification, idempotency, x402 middleware.",
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -32,20 +32,16 @@ export default function SolanaPaymentsDocsPage() {
           <strong style={{ color: "hsl(var(--metal-foreground))" }}>mainnet-beta production</strong> use.
         </p>
         <p className="text-xs mt-3" style={{ color: "hsl(var(--metal-shine))" }}>
-          <Link href="/docs/after-you-buy" className="underline hover:opacity-80">Read the universal post-purchase flow</Link> if you haven&apos;t yet.
+          <Link href="/docs/after-you-buy" className="underline hover:opacity-80">Read the Getting Access guide</Link> if you haven&apos;t yet.
         </p>
       </div>
 
-      <Section title="1. What you received">
+      <Section title="1. Get the file">
         <p>
-          GitHub sent a collaborator invitation to{" "}
-          <InlineCode>Marrow-Stack/marrow-website-v1.2</InlineCode>. Accept it from your
-          GitHub notifications or email. If it has expired,{" "}
-          <Link href="/dashboard" className="underline hover:opacity-80" style={{ color: "hsl(var(--metal-foreground))" }}>re-deliver from your dashboard</Link>.
-        </p>
-        <p>
-          Once accepted, clone the repo and copy <InlineCode>lib/solana-payments.ts</InlineCode> (~500 lines)
-          into your project. Exports:
+          Sign in at marrowstack.dev, open the{" "}
+          <Link href="/blocks/solana-payments" className="underline hover:opacity-80" style={{ color: "hsl(var(--metal-foreground))" }}>Solana Payments block</Link>,
+          and click <strong style={{ color: "hsl(var(--metal-foreground))" }}>Copy all files</strong>.
+          Paste <InlineCode>lib/solana-payments.ts</InlineCode> (~500 lines) into your project. Exports:
         </p>
         <ul className="list-disc list-inside space-y-1.5 pl-2">
           <li><InlineCode>createPaymentRequest()</InlineCode> — generates a reference keypair and a payment URI</li>
@@ -78,7 +74,7 @@ export default function SolanaPaymentsDocsPage() {
 
       <Section title="3. Install">
         <ol className="list-decimal list-inside space-y-2 pl-2">
-          <li>Clone the repo and copy <InlineCode>solana-payments.ts</InlineCode> into <InlineCode>lib/solana-payments.ts</InlineCode>.</li>
+          <li>Copy the file from the block detail page and paste it into <InlineCode>lib/solana-payments.ts</InlineCode>.</li>
           <li>Remove <InlineCode>@ts-nocheck</InlineCode> from line 1.</li>
           <li>Install peer dependencies:</li>
         </ol>

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Security Model — MarrowStack Docs",
-  description: "What MarrowStack blocks guarantee, what is the buyer's responsibility, and the verify-before-deliver rule.",
+  description: "What MarrowStack blocks guarantee, what is the developer's responsibility, and the verify-before-deliver rule.",
 };
 
 export default function SecurityDocsPage() {

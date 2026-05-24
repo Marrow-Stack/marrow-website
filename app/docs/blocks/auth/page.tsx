@@ -5,7 +5,7 @@ import Link from "next/link"
 
 export const metadata: Metadata = {
   title: "Auth System — Integration Guide — MarrowStack",
-  description: "Post-purchase integration walkthrough for the MarrowStack Auth System block: NextAuth + Supabase, bcrypt, GitHub/Google OAuth, email verification, RBAC.",
+  description: "Integration walkthrough for the MarrowStack Auth System block: NextAuth + Supabase, bcrypt, GitHub/Google OAuth, email verification, RBAC.",
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -33,24 +33,17 @@ export default function AuthDocsPage() {
           One file. One Supabase migration.
         </p>
         <p className="text-xs mt-3" style={{ color: "hsl(var(--metal-shine))" }}>
-          <Link href="/docs/after-you-buy" className="underline hover:opacity-80">Read the universal post-purchase flow</Link> if you haven&apos;t yet.
+          <Link href="/docs/after-you-buy" className="underline hover:opacity-80">Read the Getting Access guide</Link> if you haven&apos;t yet.
         </p>
       </div>
 
-      <Section title="1. What you received">
+      <Section title="1. Get the file">
         <p>
-          GitHub sent a collaborator invitation to{" "}
-          <InlineCode>Marrow-Stack/marrow-website-v1.2</InlineCode>. Accept it from your
-          GitHub notifications or email. If it has expired,{" "}
-          <Link href="/dashboard" className="underline hover:opacity-80" style={{ color: "hsl(var(--metal-foreground))" }}>re-deliver from your dashboard</Link>.
-        </p>
-        <p>
-          Once accepted, clone the repo and copy <InlineCode>lib/auth.ts</InlineCode> (~620 lines)
-          into your own project. The SQL migration is embedded as the <InlineCode>MIGRATION</InlineCode> constant at the top of the file.
-        </p>
-        <p>
-          Wallet-only buyers: your dashboard shows a &quot;Where should we deliver?&quot; prompt.
-          Save your GitHub username there; delivery runs immediately.
+          Sign in at marrowstack.dev, open the{" "}
+          <Link href="/blocks/auth" className="underline hover:opacity-80" style={{ color: "hsl(var(--metal-foreground))" }}>Auth System block</Link>,
+          and click <strong style={{ color: "hsl(var(--metal-foreground))" }}>Copy all files</strong>.
+          Paste <InlineCode>lib/auth.ts</InlineCode> (~620 lines) into your project.
+          The SQL migration is embedded as the <InlineCode>MIGRATION</InlineCode> constant at the top of the file.
         </p>
       </Section>
 

@@ -30,14 +30,12 @@ export default function GettingStartedPage() {
         </ul>
       </Section>
 
-      <Section title="1. Purchase and access">
+      <Section title="1. Sign in and copy">
         <p className="text-sm leading-relaxed" style={{ color: "hsl(var(--accent-mineral))" }}>
-          After purchase, you receive GitHub repository access within seconds. The repository contains one
-          directory per block. Clone it and copy the block you purchased.
+          All blocks are free. Sign in at marrowstack.dev, open any block, and click
+          <strong> Copy all files</strong>. The file contents are copied to your clipboard.
+          Paste them into your project — no cloning required.
         </p>
-        <CodeBlock language="bash" code={`git clone https://github.com/MarrowStack/blocks your-blocks
-cp -r your-blocks/auth   your-app/src/blocks/auth
-cp -r your-blocks/admin  your-app/src/blocks/admin`} />
       </Section>
 
       <Section title="2. Run the SQL migration">

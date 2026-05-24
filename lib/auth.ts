@@ -32,16 +32,18 @@ async function upsertGithubUser(params: {
   githubLogin: string
   email: string | null
   name: string | null
+  avatarUrl: string | null
 }): Promise<DbUser> {
   const db = getAdminClient()
   const { data, error } = await db
     .from("ms_users")
     .upsert(
       {
-        github_id: params.githubId,
+        github_id:    params.githubId,
         github_login: params.githubLogin,
-        email: params.email,
-        name: params.name,
+        email:        params.email,
+        name:         params.name,
+        avatar_url:   params.avatarUrl,
       },
       { onConflict: "github_id" }
     )
@@ -91,31 +93,26 @@ const NONCE_TTL_MS = 5 * 60 * 1000 // 5 minutes
 async function consumeNonce(nonce: string, wallet: string): Promise<boolean> {
   const db = getAdminClient()
 
-  // Atomically fetch + mark consumed
-  const { data } = await db
+  // Single atomic UPDATE — PostgREST UPDATE is row-level locked, so only one
+  // concurrent request can match and flip consumed_at. This prevents replay attacks.
+  const { data, error } = await db
     .from("ms_nonces")
-    .select()
+    .update({ consumed_at: new Date().toISOString() })
     .eq("nonce", nonce)
     .eq("wallet", wallet)
     .is("consumed_at", null)
     .gte("created_at", new Date(Date.now() - NONCE_TTL_MS).toISOString())
-    .single()
+    .select("id")
 
-  if (!data) return false // not found, already consumed, or expired
-
-  const { error } = await db
-    .from("ms_nonces")
-    .update({ consumed_at: new Date().toISOString() })
-    .eq("id", (data as { id: string }).id)
-    .is("consumed_at", null) // double-check still unconsumed
-
-  return !error
+  if (error) return false
+  return Array.isArray(data) && data.length > 0
 }
 
 // ─── NextAuth config ──────────────────────────────────────────────────────────
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.AUTH_SECRET,
+  trustHost: true, // required for Credentials provider on non-standard hosts
 
   providers: [
     GitHub({
@@ -163,21 +160,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
   callbacks: {
     async jwt({ token, user, account, profile }) {
-      // Runs on sign-in (user is defined) and on every session read
       if (account?.provider === "github" && user) {
-        const ghProfile = profile as { login?: string; id?: number } | undefined
+        const ghProfile = profile as { login?: string; id?: number; avatar_url?: string } | undefined
         const dbUser = await upsertGithubUser({
           githubId:    String(ghProfile?.id ?? ""),
           githubLogin: ghProfile?.login ?? "",
           email:       user.email ?? null,
           name:        user.name ?? null,
+          avatarUrl:   ghProfile?.avatar_url ?? null,
         })
-        token.dbId       = dbUser.id
-        token.githubLogin = ghProfile?.login ?? null
+        token.dbId          = dbUser.id
+        token.githubLogin   = ghProfile?.login ?? null
         token.walletAddress = null
       }
       if (account?.provider === "solana-wallet" && user) {
-        token.dbId        = user.dbId ?? user.id
+        token.dbId          = user.dbId ?? user.id
         token.walletAddress = (user as { walletAddress?: string }).walletAddress ?? null
         token.githubLogin   = null
       }
@@ -185,7 +182,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
 
     async session({ session, token }) {
-      session.user.id            = token.dbId as string ?? token.sub ?? ""
+      session.user.id            = (token.dbId as string) ?? token.sub ?? ""
       session.user.githubLogin   = token.githubLogin as string | null
       session.user.walletAddress = token.walletAddress as string | null
       return session

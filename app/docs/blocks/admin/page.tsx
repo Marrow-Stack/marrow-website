@@ -5,7 +5,7 @@ import Link from "next/link"
 
 export const metadata: Metadata = {
   title: "Admin Dashboard — Integration Guide — MarrowStack",
-  description: "Post-purchase integration walkthrough for the MarrowStack Admin Dashboard block: user management, revenue analytics, feature flags, audit log, CSV export.",
+  description: "Integration walkthrough for the MarrowStack Admin Dashboard block: user management, revenue analytics, feature flags, audit log, CSV export.",
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -32,24 +32,21 @@ export default function AdminDocsPage() {
           percentages, audit log, and CSV export. One file, Supabase-native.
         </p>
         <p className="text-xs mt-3" style={{ color: "hsl(var(--metal-shine))" }}>
-          <Link href="/docs/after-you-buy" className="underline hover:opacity-80">Read the universal post-purchase flow</Link> if you haven&apos;t yet.
+          <Link href="/docs/after-you-buy" className="underline hover:opacity-80">Read the Getting Access guide</Link> if you haven&apos;t yet.
         </p>
       </div>
 
-      <Section title="1. What you received">
+      <Section title="1. Get the file">
         <p>
-          GitHub sent a collaborator invitation to{" "}
-          <InlineCode>Marrow-Stack/marrow-website-v1.2</InlineCode>. Accept it from your
-          GitHub notifications or email. If it has expired,{" "}
-          <Link href="/dashboard" className="underline hover:opacity-80" style={{ color: "hsl(var(--metal-foreground))" }}>re-deliver from your dashboard</Link>.
-        </p>
-        <p>
-          Once accepted, clone the repo and copy <InlineCode>lib/admin.ts</InlineCode> (~510 lines)
-          into your project. The SQL migration is embedded in the <InlineCode>MIGRATION</InlineCode> constant.
+          Sign in at marrowstack.dev, open the{" "}
+          <Link href="/blocks/admin" className="underline hover:opacity-80" style={{ color: "hsl(var(--metal-foreground))" }}>Admin Dashboard block</Link>,
+          and click <strong style={{ color: "hsl(var(--metal-foreground))" }}>Copy all files</strong>.
+          Paste <InlineCode>lib/admin.ts</InlineCode> (~510 lines) into your project.
+          The SQL migration is embedded in the <InlineCode>MIGRATION</InlineCode> constant.
         </p>
         <p>
           This block is server-side only. It exports typed async functions (no React components).
-          You call them from your API routes or Server Actions and build your own UI on top.
+          Call them from your API routes or Server Actions and build your own UI on top.
         </p>
       </Section>
 

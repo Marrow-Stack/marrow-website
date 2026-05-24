@@ -54,7 +54,7 @@ export const HeroSection = () => {
                             className="hidden dark:block"
                         />
                     </motion.div>
-                    <h1 className="relative flex flex-col items-center justify-center text-center text-6xl font-black md:text-7xl lg:text-9xl leading-[0.8] mb-8 w-full tracking-engineered select-none">
+                    <h1 className="relative flex flex-col items-center justify-center text-center text-4xl sm:text-6xl font-black md:text-7xl lg:text-9xl leading-[0.8] mb-8 w-full tracking-engineered select-none">
 
                         {/* Static Lead-in */}
                         <span className="shrink-0 sm:pr-8 text-reveal-light pb-8 -mb-8 pt-2 dark:drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
@@ -63,10 +63,9 @@ export const HeroSection = () => {
 
                         {/* Animated Suffix Container */}
                         <span
-                            className="relative flex items-center overflow-hidden justify-center sm:justify-start pb-4 -mb-8 pt-2 px-12 -mx-12"
+                            className="relative flex items-center overflow-hidden justify-center sm:justify-start pb-4 -mb-8 pt-2 px-4 sm:px-12 -mx-4 sm:-mx-12"
                             style={{
-                                perspective: "1000px",
-                                minWidth: "min-content"
+                                perspective: "1000px"
                             }}
                         >
                             <AnimatePresence mode="wait">

@@ -5,7 +5,7 @@ import Link from "next/link"
 
 export const metadata: Metadata = {
   title: "Solana Auth (SIWS) — Integration Guide — MarrowStack",
-  description: "Post-purchase integration walkthrough for the MarrowStack Solana Auth block: Sign-In-With-Solana, Ed25519 verification, single-use nonces, domain binding, wallet↔account linking.",
+  description: "Integration walkthrough for the MarrowStack Solana Auth block: Sign-In-With-Solana, Ed25519 verification, single-use nonces, domain binding, wallet↔account linking.",
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -31,20 +31,16 @@ export default function SolanaAuthDocsPage() {
           on the block detail page — this guide is for <strong style={{ color: "hsl(var(--metal-foreground))" }}>mainnet-beta production</strong> use.
         </p>
         <p className="text-xs mt-3" style={{ color: "hsl(var(--metal-shine))" }}>
-          <Link href="/docs/after-you-buy" className="underline hover:opacity-80">Read the universal post-purchase flow</Link> if you haven&apos;t yet.
+          <Link href="/docs/after-you-buy" className="underline hover:opacity-80">Read the Getting Access guide</Link> if you haven&apos;t yet.
         </p>
       </div>
 
-      <Section title="1. What you received">
+      <Section title="1. Get the file">
         <p>
-          GitHub sent a collaborator invitation to{" "}
-          <InlineCode>Marrow-Stack/marrow-website-v1.2</InlineCode>. Accept it from your
-          GitHub notifications or email. If it has expired,{" "}
-          <Link href="/dashboard" className="underline hover:opacity-80" style={{ color: "hsl(var(--metal-foreground))" }}>re-deliver from your dashboard</Link>.
-        </p>
-        <p>
-          Once accepted, clone the repo and copy <InlineCode>lib/solana-auth.tsx</InlineCode> (~860 lines)
-          into your project. Exports:
+          Sign in at marrowstack.dev, open the{" "}
+          <Link href="/blocks/solana-auth" className="underline hover:opacity-80" style={{ color: "hsl(var(--metal-foreground))" }}>Solana Auth block</Link>,
+          and click <strong style={{ color: "hsl(var(--metal-foreground))" }}>Copy all files</strong>.
+          Paste <InlineCode>lib/solana-auth.tsx</InlineCode> (~860 lines) into your project. Exports:
         </p>
         <ul className="list-disc list-inside space-y-1.5 pl-2">
           <li><InlineCode>useSolanaAuth()</InlineCode> — React hook: connect → sign → verify in one call</li>

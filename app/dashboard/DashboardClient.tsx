@@ -249,10 +249,10 @@ export function DashboardClient({
         style={{ borderColor: "hsl(var(--metal-border))" }}
       >
         <p className="text-sm font-medium mb-1" style={{ color: "hsl(var(--metal-foreground))" }}>
-          No purchases yet
+          No activity yet
         </p>
         <p className="text-xs mb-6" style={{ color: "hsl(var(--accent-mineral))" }}>
-          Browse the block library and get started.
+          Sign in and copy any block for free.
         </p>
         <Link href="/blocks">
           <motion.span

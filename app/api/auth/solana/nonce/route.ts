@@ -29,7 +29,14 @@ export async function GET(req: NextRequest) {
   const db = getAdminClient()
   const { error } = await db.from("ms_nonces").insert({ nonce, wallet, domain })
   if (error) {
-    return NextResponse.json({ error: { code: "INTERNAL_ERROR", message: "Failed to create nonce" } }, { status: 500 })
+    // Surface the Supabase error code so misconfiguration is diagnosable
+    const hint = error.message.includes("does not exist")
+      ? "Run the MIGRATION SQL in your Supabase SQL Editor first."
+      : error.message
+    return NextResponse.json(
+      { error: { code: "INTERNAL_ERROR", message: hint } },
+      { status: 500 }
+    )
   }
 
   return NextResponse.json({ nonce, domain })

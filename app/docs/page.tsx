@@ -5,14 +5,14 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Docs — MarrowStack",
-  description: "Technical documentation for MarrowStack blocks: post-purchase flow, auth, admin, team workspace, Solana auth (SIWS), and Solana USDC payments.",
+  description: "Technical documentation for MarrowStack blocks: getting started, auth, admin, team workspace, Solana auth (SIWS), and Solana USDC payments.",
 };
 
 const SECTIONS = [
   {
     href:  "/docs/after-you-buy",
-    label: "After You Buy",
-    desc:  "Universal post-purchase flow: auth, payment rails (Dodo + Solana), GitHub delivery, and how to get help.",
+    label: "Getting Access",
+    desc:  "Sign in, copy any block for free, and integrate it into your Next.js app in minutes.",
   },
   {
     href:  "/docs/getting-started",
@@ -47,12 +47,12 @@ const SECTIONS = [
   {
     href:  "/docs/security",
     label: "Security Model",
-    desc:  "What the blocks guarantee, what is the buyer's responsibility, and the verify-before-deliver rule.",
+    desc:  "What the blocks guarantee, what is the developer's responsibility, and the verify-before-deliver rule.",
   },
   {
     href:  "/docs/faq",
     label: "FAQ",
-    desc:  "Licensing, updates, refunds, Solana cluster questions, and ORM compatibility.",
+    desc:  "Licensing, Solana cluster questions, and ORM compatibility.",
   },
 ];
 
@@ -62,9 +62,9 @@ export default function DocsOverviewPage() {
       <div>
         <h1 className="text-3xl font-black text-reveal-light mb-3">MarrowStack Documentation</h1>
         <p className="text-base leading-relaxed" style={{ color: "hsl(var(--accent-mineral))" }}>
-          MarrowStack sells production-ready TypeScript server actions for Next.js. Each block is a
-          single file (or small directory) that you copy into your project, run a SQL migration, set
-          env vars, and wire up. No custom framework, no SDK lock-in.
+          MarrowStack is a free, open-source library of production-ready TypeScript server actions for Next.js.
+          Each block is a single file (or small directory) that you copy into your project, run a SQL migration,
+          set env vars, and wire up. No custom framework, no SDK lock-in. Sign in to copy any block instantly.
         </p>
       </div>
 
@@ -82,12 +82,12 @@ export default function DocsOverviewPage() {
 
       <div>
         <h2 className="text-lg font-bold mb-2" style={{ color: "hsl(var(--metal-foreground))" }}>
-          Delivery model
+          How it works
         </h2>
         <ol className="list-decimal list-inside space-y-1.5 text-sm" style={{ color: "hsl(var(--accent-mineral))" }}>
-          <li>Purchase a block at marrowstack.dev.</li>
-          <li>You receive GitHub repository access within seconds.</li>
-          <li>Clone the repo, copy the block file(s) into your project.</li>
+          <li>Sign in at marrowstack.dev (GitHub OAuth or Solana wallet).</li>
+          <li>Browse the block library and open any block.</li>
+          <li>Copy the block file(s) directly from the browser — all blocks are free.</li>
           <li>Run the included SQL migration in your Supabase project.</li>
           <li>Set the env vars documented for the block.</li>
           <li>Mount the API routes and drop in the UI component (if applicable).</li>

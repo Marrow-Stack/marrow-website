@@ -5,7 +5,7 @@ import Link from "next/link"
 
 export const metadata: Metadata = {
   title: "Team Workspace — Integration Guide — MarrowStack",
-  description: "Post-purchase integration walkthrough for the MarrowStack Team Workspace block: RBAC, invite flows, permission matrix, ORM-agnostic adapter.",
+  description: "Integration walkthrough for the MarrowStack Team Workspace block: RBAC, invite flows, permission matrix, ORM-agnostic adapter.",
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -33,21 +33,17 @@ export default function TeamspaceDocsPage() {
           pattern that works with Prisma, Drizzle, or raw Supabase.
         </p>
         <p className="text-xs mt-3" style={{ color: "hsl(var(--metal-shine))" }}>
-          <Link href="/docs/after-you-buy" className="underline hover:opacity-80">Read the universal post-purchase flow</Link> if you haven&apos;t yet.
+          <Link href="/docs/after-you-buy" className="underline hover:opacity-80">Read the Getting Access guide</Link> if you haven&apos;t yet.
         </p>
       </div>
 
-      <Section title="1. What you received">
+      <Section title="1. Get the file">
         <p>
-          GitHub sent a collaborator invitation to{" "}
-          <InlineCode>Marrow-Stack/marrow-website-v1.2</InlineCode>. Accept it from your
-          GitHub notifications or email. If it has expired,{" "}
-          <Link href="/dashboard" className="underline hover:opacity-80" style={{ color: "hsl(var(--metal-foreground))" }}>re-deliver from your dashboard</Link>.
-        </p>
-        <p>
-          Once accepted, clone the repo and copy <InlineCode>lib/teamspace.ts</InlineCode> (~440 lines)
-          into your project. The SQL migration is embedded in the file.
-          The block exports typed server-side functions; mount them in your own API routes.
+          Sign in at marrowstack.dev, open the{" "}
+          <Link href="/blocks/teamspace" className="underline hover:opacity-80" style={{ color: "hsl(var(--metal-foreground))" }}>Team Workspace block</Link>,
+          and click <strong style={{ color: "hsl(var(--metal-foreground))" }}>Copy all files</strong>.
+          Paste <InlineCode>lib/teamspace.ts</InlineCode> (~440 lines) into your project.
+          The SQL migration is embedded in the file. Mount the exported functions in your own API routes.
         </p>
       </Section>
 

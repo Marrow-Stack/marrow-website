@@ -6,7 +6,6 @@ import type { Metadata } from "next";
 
 import { BLOCKS, getBlock, CATEGORY_LABELS } from "@/lib/blocks/registry";
 import { listBlockFiles, buildCopyAllPayload, BlockNotAvailableError } from "@/lib/github/fetch";
-import { auth } from "@/lib/auth";
 import { RefractiveDock } from "@/components/navbar";
 import { Footer } from "@/components/Footer";
 import { FileViewer } from "@/components/blocks/viewer/FileViewer";
@@ -67,9 +66,6 @@ export default async function BlockDetailPage({
   if (block.status === "teaser") {
     return <BlockTeaserPage block={block} />;
   }
-
-  const session = await auth();
-  const isSignedIn = !!session?.user?.id;
 
   // Fetch source files from GitHub (cached 1hr; build-time prefetch)
   let source;
@@ -266,7 +262,6 @@ export default async function BlockDetailPage({
         >
           <FileViewer
             source={source}
-            isSignedIn={isSignedIn}
             copyAllPayload={copyAllPayload}
           />
         </Suspense>
