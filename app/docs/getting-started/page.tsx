@@ -70,7 +70,7 @@ SOLANA_TREASURY_ADDRESS=YourBase58PublicKey`} />
           Each block exports named handler functions. Mount them as Next.js App Router route handlers.
         </p>
         <CodeBlock language="typescript" code={`// app/api/auth/[...nextauth]/route.ts
-import { authOptions } from '@/blocks/auth'
+import { authOptions } from '@/lib/auth'
 import NextAuth from 'next-auth'
 
 const handler = NextAuth(authOptions)
@@ -82,9 +82,9 @@ export { handler as GET, handler as POST }`} />
           All business logic is exported as async functions. Call them directly from server components,
           server actions, or route handlers.
         </p>
-        <CodeBlock language="typescript" code={`import { getDashboardStats, requireAdmin } from '@/blocks/admin'
+        <CodeBlock language="typescript" code={`import { getDashboardStats, requireAdmin } from '@/lib/admin'
 import { getServerSession }                from 'next-auth'
-import { authOptions }                     from '@/blocks/auth'
+import { authOptions }                     from '@/lib/auth'
 
 export default async function AdminPage() {
   const session = await getServerSession(authOptions)

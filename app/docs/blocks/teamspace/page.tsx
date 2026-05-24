@@ -40,7 +40,7 @@ export default function TeamspaceDocsPage() {
       <Section title="1. Get the file">
         <p>
           Sign in at marrowstack.dev, open the{" "}
-          <Link href="/blocks/teamspace" className="underline hover:opacity-80" style={{ color: "hsl(var(--metal-foreground))" }}>Team Workspace block</Link>,
+          <Link href="/blocks/team" className="underline hover:opacity-80" style={{ color: "hsl(var(--metal-foreground))" }}>Team Workspace block</Link>,
           and click <strong style={{ color: "hsl(var(--metal-foreground))" }}>Copy all files</strong>.
           Paste <InlineCode>lib/teamspace.ts</InlineCode> (~440 lines) into your project.
           The SQL migration is embedded in the file. Mount the exported functions in your own API routes.
@@ -57,7 +57,7 @@ export default function TeamspaceDocsPage() {
 
       <Section title="3. Install">
         <ol className="list-decimal list-inside space-y-2 pl-2">
-          <li>Clone the delivery repo and copy <InlineCode>teamspace.ts</InlineCode> into <InlineCode>lib/teamspace.ts</InlineCode>.</li>
+          <li>Copy <InlineCode>teamspace.ts</InlineCode> from the block detail page and paste it into <InlineCode>lib/teamspace.ts</InlineCode> in your project.</li>
           <li>Install peer dependencies:</li>
         </ol>
         <CodeBlock language="bash" code={`npm install @supabase/supabase-js zod`} />

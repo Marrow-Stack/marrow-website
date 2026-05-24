@@ -60,8 +60,7 @@ export default function AdminDocsPage() {
 
       <Section title="3. Install">
         <ol className="list-decimal list-inside space-y-2 pl-2">
-          <li>Accept the GitHub invitation and clone the repo.</li>
-          <li>Copy <InlineCode>admin.ts</InlineCode> into your project at <InlineCode>lib/admin.ts</InlineCode>.</li>
+          <li>Copy <InlineCode>admin.ts</InlineCode> from the block detail page and paste it into <InlineCode>lib/admin.ts</InlineCode> in your project.</li>
           <li>Install peer dependencies:</li>
         </ol>
         <CodeBlock language="bash" code={`npm install @supabase/supabase-js zod`} />

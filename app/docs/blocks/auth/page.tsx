@@ -59,8 +59,7 @@ export default function AuthDocsPage() {
 
       <Section title="3. Install">
         <ol className="list-decimal list-inside space-y-2 pl-2">
-          <li>Accept the GitHub invitation and clone the repo.</li>
-          <li>Copy <InlineCode>auth.ts</InlineCode> into your project at <InlineCode>lib/auth.ts</InlineCode>.</li>
+          <li>Copy <InlineCode>auth.ts</InlineCode> from the block detail page and paste it into <InlineCode>lib/auth.ts</InlineCode> in your project.</li>
           <li>Install peer dependencies:</li>
         </ol>
         <CodeBlock language="bash" code={`npm install next-auth @supabase/supabase-js bcryptjs nodemailer zod
