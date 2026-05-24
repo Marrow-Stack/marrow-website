@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Boxes, BookOpen, Search, Sun, Moon, LayoutDashboard, LogIn, LogOut, type LucideIcon } from "lucide-react";
+import { Boxes, BookOpen, Search, Sun, Moon, LogIn, LogOut, type LucideIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
@@ -19,39 +19,25 @@ const LEFT_ITEMS: DockItem[] = [
   { name: "Docs", icon: BookOpen, href: "/docs" },
 ];
 
-// Internal Sub-component: Auth button (sign-in or dashboard)
+// Internal Sub-component: Auth button (sign-in or sign-out)
 function AuthButton() {
   const { data: session, status } = useSession()
   if (status === "loading") return null
 
   if (session) {
     return (
-      <div className="flex items-center gap-1.5">
-        <Link href="/dashboard" title="Dashboard">
-          <motion.div
-            className="group relative flex aspect-square h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-zinc-200/50 dark:bg-zinc-900/40 border border-black/5 dark:border-white/5 transition-colors hover:bg-zinc-300/50 dark:hover:bg-zinc-800/80 cursor-pointer"
-            whileTap={{ scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 500, damping: 15 }}
-          >
-            <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 rounded-md border border-black/10 dark:border-white/10 bg-white/90 dark:bg-black/80 backdrop-blur-md px-2 py-1 text-[10px] font-medium text-black dark:text-white opacity-0 transition-opacity group-hover:opacity-100 whitespace-nowrap pointer-events-none">
-              Dashboard
-            </span>
-            <LayoutDashboard className="h-full w-full p-2.5 text-zinc-600 dark:text-zinc-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
-          </motion.div>
-        </Link>
-        <motion.button
-          onClick={() => signOut({ callbackUrl: "/" })}
-          title="Sign out"
-          className="group relative flex aspect-square h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-zinc-200/50 dark:bg-zinc-900/40 border border-black/5 dark:border-white/5 transition-colors hover:bg-zinc-300/50 dark:hover:bg-zinc-800/80 cursor-pointer"
-          whileTap={{ scale: 0.95 }}
-          transition={{ type: "spring", stiffness: 500, damping: 15 }}
-        >
-          <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 rounded-md border border-black/10 dark:border-white/10 bg-white/90 dark:bg-black/80 backdrop-blur-md px-2 py-1 text-[10px] font-medium text-black dark:text-white opacity-0 transition-opacity group-hover:opacity-100 whitespace-nowrap pointer-events-none">
-            Sign out
-          </span>
-          <LogOut className="h-full w-full p-2.5 text-zinc-600 dark:text-zinc-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
-        </motion.button>
-      </div>
+      <motion.button
+        onClick={() => signOut({ callbackUrl: "/" })}
+        title="Sign out"
+        className="group relative flex aspect-square h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-zinc-200/50 dark:bg-zinc-900/40 border border-black/5 dark:border-white/5 transition-colors hover:bg-zinc-300/50 dark:hover:bg-zinc-800/80 cursor-pointer"
+        whileTap={{ scale: 0.95 }}
+        transition={{ type: "spring", stiffness: 500, damping: 15 }}
+      >
+        <span className="absolute -bottom-10 left-1/2 -translate-x-1/2 rounded-md border border-black/10 dark:border-white/10 bg-white/90 dark:bg-black/80 backdrop-blur-md px-2 py-1 text-[10px] font-medium text-black dark:text-white opacity-0 transition-opacity group-hover:opacity-100 whitespace-nowrap pointer-events-none">
+          Sign out
+        </span>
+        <LogOut className="h-full w-full p-2.5 text-zinc-600 dark:text-zinc-400 group-hover:text-black dark:group-hover:text-white transition-colors" />
+      </motion.button>
     )
   }
 

@@ -126,7 +126,7 @@ async function solanaSignIn(
       setStatus("")
     } else {
       const params = new URLSearchParams(window.location.search)
-      window.location.href = params.get("callbackUrl") ?? "/dashboard"
+      window.location.href = params.get("callbackUrl") ?? "/blocks"
     }
   } catch (e) {
     setError(e instanceof Error ? e.message : "Wallet sign-in failed. Please try again.")
@@ -138,7 +138,7 @@ async function solanaSignIn(
 
 function SignInContent() {
   const searchParams = useSearchParams()
-  const callbackUrl  = searchParams.get("callbackUrl") ?? "/dashboard"
+  const callbackUrl  = searchParams.get("callbackUrl") ?? "/blocks"
   const [status, setStatus] = useState("")
   const [error, setError]   = useState("")
 
